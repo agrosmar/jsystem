@@ -13,4 +13,9 @@ public class ExecutionErrorTests extends SystemTestCase4{
 	public void testNotFound() throws Exception{
 		throw new Exception("Test not found");
 	}
+	
+	@Test
+	public void classNotFound() throws Exception {
+		throw new Exception("Class not found");
+	}
 }

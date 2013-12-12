@@ -38,6 +38,7 @@ import jsystem.utils.FileUtils;
 import jsystem.utils.PerformanceUtil;
 import jsystem.utils.StringUtils;
 import jsystem.utils.XmlUtils;
+import junit.framework.ExecutionErrorTests;
 import junit.framework.SystemTest;
 import junit.framework.TestResult;
 
@@ -253,16 +254,20 @@ public class Scenario extends JTestContainer {
 					log.log(Level.WARNING, "Fail to load test " + targetName);
 					continue;
 				}
+				RunnerTest executionErrorTest = null;
 				try {
 					test.load();
 				} catch (Throwable e) {
+					executionErrorTest = new RunnerTest(ExecutionErrorTests.class.getName(), "classNotFound");
+					executionErrorTest.setTestId(test.getTestId());
+					executionErrorTest.setParent(targetAndParent.get(executionErrorTest.getTestId()));
+					executionErrorTest.load();
 					ValidationError validationError = new ValidationError();
 					validationError.setOriginator(Originator.RUNNER);
 					validationError.setTitle("Fail to load class: " + test.getClassName());
 					validationError.setMessage(StringUtils.getStackTrace(e));
 					validationError.setTest(test);
-					test.addValidationError(validationError);
-					
+					test.addValidationError(validationError);					
 				}
 				ValidationError[] errors = test.validate(test.getVisibleParamters(false));
 				ValidationError.clearValidatorsWithOriginator(test.getValidationErrors(), Originator.TEST);
@@ -275,9 +280,16 @@ public class Scenario extends JTestContainer {
 
 				Integer place = targetAndPlace.get(targetName);
 				JTestContainer container = targetAndParent.get(targetName);
-				container.rootTests.set(place, test);
-				checkAndAddUUID(uuidSet, test.getUUID());
-				checkAddAndFixId(testIdSet, test.getTestId());
+				if (executionErrorTest != null) {
+					container.rootTests.set(place, executionErrorTest);
+					checkAndAddUUID(uuidSet, executionErrorTest.getUUID());
+					checkAddAndFixId(testIdSet, executionErrorTest.getTestId());
+				}
+				else {
+					container.rootTests.set(place, test);
+					checkAndAddUUID(uuidSet, test.getUUID());
+					checkAddAndFixId(testIdSet, test.getTestId());
+				}				
 			}
 			if (isScenario) {
 				Element antTask = XmlUtils.getElementsByTag(
