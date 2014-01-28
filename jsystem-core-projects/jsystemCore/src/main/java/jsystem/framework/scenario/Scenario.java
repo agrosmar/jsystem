@@ -249,7 +249,7 @@ public class Scenario extends JTestContainer {
 				}
 				RunnerTest test = (RunnerTest) RunnerTest.fromElement(parentScenarioCallingTarget,
 						scenarioElementTarget, null, targetAndParent.get(targetName));
-
+				
 				if (test == null) {
 					log.log(Level.WARNING, "Fail to load test " + targetName);
 					continue;
@@ -267,7 +267,8 @@ public class Scenario extends JTestContainer {
 					validationError.setTitle("Fail to load class: " + test.getClassName());
 					validationError.setMessage(StringUtils.getStackTrace(e));
 					validationError.setTest(test);
-					test.addValidationError(validationError);					
+					test.addValidationError(validationError);		
+					/*ScenariosManager.setDirty();*/					
 				}
 				ValidationError[] errors = test.validate(test.getVisibleParamters(false));
 				ValidationError.clearValidatorsWithOriginator(test.getValidationErrors(), Originator.TEST);

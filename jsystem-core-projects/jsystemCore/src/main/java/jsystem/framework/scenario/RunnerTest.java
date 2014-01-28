@@ -472,8 +472,7 @@ public class RunnerTest implements JTest, UIHandler {
 		int annotation = compareIncludeAndExclude(include, exclude);
 		String name;
 		for (Element prop : propertiesToUpdateWith) {
-			String key;
-
+			String key;			
 			if (is49) {
 				key = prop.getAttribute("name");
 			} else {

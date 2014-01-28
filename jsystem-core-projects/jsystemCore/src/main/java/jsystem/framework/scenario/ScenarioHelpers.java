@@ -1169,12 +1169,22 @@ public class ScenarioHelpers {
 	 * @param ignoreCache
 	 *            True will go to filesystem instead of cache HashMap
 	 * 
-	 * @return
+	 * @return Properties
 	 */
 	public static Properties getAllTestPropertiesFromAllScenarios(
 			String fullUuid, boolean ignoreCache) {
 		RunnerTest rt = ScenariosManager.getInstance().getCurrentScenario()
 				.getRunnerTestByFullId(fullUuid);
+		if (null == rt) {			
+			Vector<JTest> loadedTests = ScenariosManager.getInstance().getCurrentScenario().getTests();
+			for (JTest test : loadedTests) {
+				if (test instanceof RunnerTest) {
+					if (((RunnerTest)test).getClassName().contains("ExecutionErrorTests")) {						
+						return getAllTestPropertiesUpTo((RunnerTest)test, null, true);
+					}
+				}
+			}
+		}
 		return getAllTestPropertiesUpTo(rt, null, ignoreCache);
 	}
 

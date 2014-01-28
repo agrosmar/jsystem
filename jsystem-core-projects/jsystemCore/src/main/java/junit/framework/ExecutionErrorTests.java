@@ -3,7 +3,7 @@ package junit.framework;
 import org.junit.Test;
 
 public class ExecutionErrorTests extends SystemTestCase4{
-	
+		
 	/**
 	 * This test is used when we get NoTestsRemainException, while initialize test during run of scenario.
 	 * In this case the wanted test is replaced with this test.
@@ -16,6 +16,6 @@ public class ExecutionErrorTests extends SystemTestCase4{
 	
 	@Test
 	public void classNotFound() throws Exception {
-		throw new Exception("Class not found");
+		throw new Exception("Class not found");		
 	}
 }
