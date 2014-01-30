@@ -13,6 +13,12 @@ import jsystem.framework.scenario.RunnerTest;
 import jsystem.framework.scenario.ScenarioHelpers;
 import jsystem.utils.XmlUtils;
 
+/**
+ * Presentation of the data driven action in the scenario
+ * 
+ * @author Itai_Agmon
+ * 
+ */
 public class AntDataDriven extends AntFlowControl {
 
 	private Parameter dataSourceFile = new Parameter();
@@ -31,7 +37,7 @@ public class AntDataDriven extends AntFlowControl {
 	public AntDataDriven(JTestContainer parent, String id) {
 		super("DataDriven", parent, id);
 		dataSourceFile.setType(Parameter.ParameterType.FILE);
-		dataSourceFile.setValue("data.xls");
+		dataSourceFile.setValue("data.csv");
 		dataSourceFile.setName("File");
 		dataSourceFile.setDescription("Data Source File");
 		// TODO: sync section with comment/name
@@ -41,8 +47,8 @@ public class AntDataDriven extends AntFlowControl {
 
 		dataSourceType.setType(Parameter.ParameterType.STRING);
 		dataSourceType.setAsOptions(true);
-		dataSourceType.setOptions(new Object[] { "EXCEL_FILE", "CSV_FILE", "DATABASE" });
-		dataSourceType.setValue("EXCEL_FILE");
+		dataSourceType.setOptions(new Object[] { "Excel", "Csv", "Database" });
+		dataSourceType.setValue("Csv");
 		dataSourceType.setName("Type");
 		dataSourceType.setDescription("Data Source Type");
 		dataSourceType.setSection(getComment());

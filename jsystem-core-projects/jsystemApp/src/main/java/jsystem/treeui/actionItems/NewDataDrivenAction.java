@@ -9,6 +9,12 @@ import jsystem.treeui.TestRunner;
 import jsystem.treeui.images.ImageCenter;
 import jsystem.treeui.teststable.TestsTableController.ActionType;
 
+/**
+ * 
+ * Adds data driven container to the scenario.
+ * @author Itai_Agmon
+ *
+ */
 public class NewDataDrivenAction extends IgnisAction {
 	
 	private static final long serialVersionUID = 1L;
@@ -17,13 +23,12 @@ public class NewDataDrivenAction extends IgnisAction {
 
 	
 	private NewDataDrivenAction(){
-		//TODO: Change it to the correct values
 		super();
-		putValue(Action.NAME, JsystemMapping.getInstance().getLoopButton());
-		putValue(Action.SHORT_DESCRIPTION, JsystemMapping.getInstance().getLoopButton());
-		putValue(Action.SMALL_ICON, ImageCenter.getInstance().getImage(ImageCenter.ICON_FOR_LOOP));
-		putValue(Action.LARGE_ICON_KEY, ImageCenter.getInstance().getImage(ImageCenter.ICON_FOR_LOOP));
-		putValue(Action.ACTION_COMMAND_KEY, "flowcontrol-new-forloop");
+		putValue(Action.NAME, JsystemMapping.getInstance().getDataDrivenButton());
+		putValue(Action.SHORT_DESCRIPTION, JsystemMapping.getInstance().getDataDrivenButton());
+		putValue(Action.SMALL_ICON, ImageCenter.getInstance().getImage(ImageCenter.ICON_DATA_DRIVEN));
+		putValue(Action.LARGE_ICON_KEY, ImageCenter.getInstance().getImage(ImageCenter.ICON_DATA_DRIVEN));
+		putValue(Action.ACTION_COMMAND_KEY, "flowcontrol-new-datadriven");
 	}
 	
 
