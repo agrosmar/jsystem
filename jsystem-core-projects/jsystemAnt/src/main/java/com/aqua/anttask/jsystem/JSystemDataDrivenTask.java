@@ -49,8 +49,7 @@ public class JSystemDataDrivenTask extends ForTask {
 		Properties properties = JSystemAntUtil.getPropertiesValue(scenarioString, uuid);
 		type = JSystemAntUtil.getParameterValue("Type", "", properties);
 		if (StringUtils.isEmpty(type)) {
-			log.log(Level.INFO, "Data driven type was not set");
-			return;
+			type = "Csv";
 		}
 		DataCollector collector = null;
 		if (type.equals("Excel")) {

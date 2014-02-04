@@ -37,7 +37,7 @@ public class AntDataDriven extends AntFlowControl {
 	public AntDataDriven(JTestContainer parent, String id) {
 		super("DataDriven", parent, id);
 		dataSourceFile.setType(Parameter.ParameterType.FILE);
-		dataSourceFile.setValue("data.csv");
+		dataSourceFile.setValue("");
 		dataSourceFile.setName("File");
 		dataSourceFile.setDescription("Data Source File");
 		// TODO: sync section with comment/name
@@ -47,7 +47,7 @@ public class AntDataDriven extends AntFlowControl {
 
 		dataSourceType.setType(Parameter.ParameterType.STRING);
 		dataSourceType.setAsOptions(true);
-		dataSourceType.setOptions(new Object[] { "Excel", "Csv", "Database" });
+		dataSourceType.setOptions(new Object[] { "Csv" });
 		dataSourceType.setValue("Csv");
 		dataSourceType.setName("Type");
 		dataSourceType.setDescription("Data Source Type");
@@ -61,8 +61,6 @@ public class AntDataDriven extends AntFlowControl {
 		Element dataDrivenElement = doc.createElement(XML_TAG);
 		// ITAI: The actual values are set in the properties file and not in the
 		// XML file
-		dataDrivenElement.setAttribute("list", "a,b,c");
-		dataDrivenElement.setAttribute("param", "myVar");
 		dataDrivenElement.setAttribute("delimiter", CommonResources.DELIMITER);
 		addPropertiesToElement(dataDrivenElement);
 		appendAdditionalData(dataDrivenElement);
@@ -78,12 +76,6 @@ public class AntDataDriven extends AntFlowControl {
 		Element echo2 = doc.createElement("echo");
 		echo2.setAttribute("message", "Data Driven");
 		containerElement.appendChild(echo2);
-
-		String dataSourceFileValue = dataSourceFile.getValue() == null ? null : dataSourceFile.getValue().toString();
-		Element paramProperty = doc.createElement("var");
-		paramProperty.setAttribute("name", dataSourceFileValue);
-		paramProperty.setAttribute("value", dataSourceFileValue);
-		containerElement.appendChild(paramProperty);
 
 		Element setAntProperties = doc.createElement(CommonResources.SET_ANT_PROPERTIES);
 		XmlUtils.appendComment(setAntProperties,
@@ -148,14 +140,6 @@ public class AntDataDriven extends AntFlowControl {
 
 	public static JTestContainer fromElement(JTestContainer parent, Element element) {
 		AntDataDriven newContainer = new AntDataDriven(parent, null);
-
-		String type = newContainer.dataSourceType.getValue().toString();
-		type = element.getAttribute("type").toString();
-		newContainer.dataSourceType.setValue(type);
-
-		String file = newContainer.dataSourceFile.getValue().toString();
-		file = element.getAttribute("file").toString();
-		newContainer.dataSourceFile.setValue(file);
 		deserializeAdditionalData(newContainer, element);
 		newContainer.setTestComment(newContainer.defaultComment());
 		return newContainer;
