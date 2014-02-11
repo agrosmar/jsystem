@@ -132,35 +132,63 @@ public class JSystemDataDrivenTask extends ForTask {
 
 	class CsvDataCollector implements DataCollector {
 
+		private static final String SEPARATION_STRING = ",";
+
 		@Override
 		public List<Map<String, Object>> collect(Properties properties) throws DataCollectorException {
 			file = JSystemAntUtil.getParameterValue("File", "", properties);
 			final File csvFile = new File(file);
 			List<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
-			Scanner scanner = null;
+			Scanner lineScanner = null;
 			try {
-				scanner = new Scanner(csvFile);
-				String[] titles = null;
-				while (scanner.hasNext()) {
-					String[] line = scanner.next().split(",");
+				lineScanner = new Scanner(csvFile);
+				List<String> titles = null;
+				while (lineScanner.hasNextLine()) {
+					List<String> cells = new ArrayList<String>();
+					Scanner cellScanner = null;
+					try {
+						cellScanner = new Scanner(lineScanner.nextLine());
+						cellScanner.useDelimiter(SEPARATION_STRING);
+						while (cellScanner.hasNext()) {
+							cells.add(cellScanner.next());
+						}
+
+					} finally {
+						if (cellScanner != null) {
+							cellScanner.close();
+						}
+					}
+					if (cells.size() == 0) {
+						// Seems to be an empty line. Let's continue to the next
+						// line
+						continue;
+					}
 					if (null == titles) {
-						titles = line;
+						// This is the first line of the CSV, so it is the
+						// titles
+						titles = new ArrayList<String>();
+						titles.addAll(cells);
 						continue;
 					}
 					Map<String, Object> dataRow = new HashMap<String, Object>();
-					for (int i = 0; i < line.length; i++) {
-						dataRow.put(titles[i], line[i]);
+					if (cells.size() != titles.size()) {
+						log.warning("Titles number is " + titles.size()
+								+ " while the cells number in one of the rows is " + cells.size());
+					}
+					// We would iterate over the smaller list size to avoid out
+					// of bounds
+					for (int i = 0; i < (titles.size() <= cells.size() ? titles.size() : cells.size()); i++) {
+						dataRow.put(titles.get(i), cells.get(i));
 					}
 					data.add(dataRow);
 				}
 			} catch (FileNotFoundException e) {
 				throw new DataCollectorException("Csv file " + file + " is not exist", e);
 			} finally {
-				if (scanner != null) {
-					scanner.close();
+				if (lineScanner != null) {
+					lineScanner.close();
 				}
 			}
-
 			return data;
 		}
 
