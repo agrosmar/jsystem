@@ -123,6 +123,8 @@
 				<include>*:commons-modeler:*</include>
 				<include>*:filters:*</include>
 				<include>*:xz:*</include>
+				<include>*:jackson-mapper-asl:*</include>
+				<include>*:jackson-core-asl:*</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>

@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>TestOne</title>
+        <style type="text/css" title="currentStyle">
+            @import "css/general_page.css";
+            @import "css/test_page.css";
+        </style>
+ 
+
+    <body id="page">
+        <div id="container">
+            <div class="full_width big">
+                TestOne 
+            </div>
+            <h1>Results for date 29/01/2014 11:49:23</h1>
+            <div>
+                <h2>This is the test description</h2>
+                <table id='parameter-table' cellpadding="0" cellspacing="0" border="0" width="30%">
+                    <thead>
+                        <tr>
+                            <th align='left'>Parameter</th>
+                            <th align='left'>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UserName</td>
+                            <td>Itaiag</td>
+                        </tr>
+                        <tr>
+                            <td>Password</td>
+                            <td>s3cr3t</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <div>
+                <br/>
+                <!-- cellspacing="0" border="0" -->
+                <table class="testtbl" >
+                    <thead>
+                        <tr>
+                            <th>11:49:22</th>
+                            <th><div onclick="toggle('step1')">Step 1 - Login To System</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="step1" >
+                        <tr>
+                            <td>11:49:23</td>
+                            <td>Clicking on some button</td>
+                        </tr>
+                        <tr>	
+                            <td>11:49:25</td>
+                            <td>Entering text to something</td>
+                        </tr>
+                        <tr>
+                            <td >11:49:28</td>
+                            <td>
+                                <a onClick="toggle('sc')" href="#">Screenshot - Click on me!</a>
+                                <div>
+                                    <img id='sc' style="display:none" src="resources/Capture323234.PNG" alt="Image" height="500" width="500" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >11:50:25</td>
+                            <td><a href='testOne345353_0.html'>Some title that links to a message</td>
+                        </tr> 
+                        <tr>
+                            <td>11:55:25</td>
+                            <td>
+                                <a href="#" onClick="toggle('t1111')">Actually, You can toggle all kind of elements - Click on me</a>
+                                <div id="t1111" style="display:none">Toggled text <br/> with multiple <br/> lines.</div>
+                            </td>
+                        </tr> 
+
+                            </tbody>
+                </table>
+                <br/>
+                <table class="testtbl">
+                    <thead>
+                        <tr>
+                            <th class='header'>11:56:22</th>
+                            <th class='header fail' ><div  onclick="toggle('step2')">Step 2 - Creating account</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="step2" >
+                        <tr>
+                            <td >11:57:22</td>
+                            <td>Clicking on some button</td>
+                        </tr>
+                        <tr>
+                            <td >11:58:22</td>
+                            <td>Entering text to something</td>
+                        </tr>
+                        <tr>
+                            <td >11:59:22</td>
+                            <td>
+                                <a onClick="toggle('sc')" href="#">Screenshot - Click on me!</a>
+                                <div>
+                                    <img id='sc' style="display:none" src="resources/Capture323234.PNG" alt="Image" height="500" width="500" />
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >12:00:22</td>
+                            <td><a href='testOne345353_0.html'>Some title that links to a message</td>
+                        </tr> 
+                        <tr>
+                            <td >12:01:25</td>
+                            <td class="fail">Report logs can also fail</td>
+                        </tr> 
+                        <tr>
+                            <td >12:02:11</td>
+                            <td class="fail">Or have warning</td>
+                        </tr> 
+                        <tr>
+                            <td >12:06:22</td>
+                            <td>
+                                <a href="#" onClick="toggle('t1112')">Actually, You can toggle all kind of elements - Click on me</a>
+                                <div id="t1112" style="display:none">Toggled text <br/> with multiple <br/> lines.</div>
+                            </td>
+                        </tr> 
+                    </tbody>
+                </table>
+            </div>
+        <script type="text/javascript" src="js/jquery.js"></script>
+        
+        <script type="text/javascript">
+            function toggle(id) {
+                $("#" + id).toggle(200);
+            }
+        </script>
+        <script type="text/javascript" src="js/getParameter.js">
+        </script>
+        <script type="text/javascript">
+            var index = window.location.getParameter("index");
+            console.log("index: "+index);
+        </script>
+    </body>
+    
+</html>
