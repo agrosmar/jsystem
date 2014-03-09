@@ -1,6 +1,5 @@
 package jsystem.extensions.report.jsonToHtml.model;
 
-import jsystem.extensions.report.jsonToHtml.model.Enums.Type;
 
 
 /**
@@ -16,10 +15,5 @@ public class ReportedScenario extends ReportedNodeWithChildren {
 	public ReportedScenario(String name) {
 		super(name);
 	}
-
-	public Type getType() {
-		return Type.scenario;
-	}
-
 
 }

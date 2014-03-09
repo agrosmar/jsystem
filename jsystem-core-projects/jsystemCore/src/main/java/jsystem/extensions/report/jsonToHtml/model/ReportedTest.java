@@ -1,8 +1,5 @@
 package jsystem.extensions.report.jsonToHtml.model;
 
-import jsystem.extensions.report.jsonToHtml.model.Enums.Type;
-
-
 public class ReportedTest extends ReportedNode {
 
 	private int index;
@@ -18,10 +15,6 @@ public class ReportedTest extends ReportedNode {
 	public ReportedTest(int index, String name) {
 		super(name);
 		this.index = index;
-	}
-
-	public Type getType() {
-		return Type.test;
 	}
 
 	public int getIndex() {

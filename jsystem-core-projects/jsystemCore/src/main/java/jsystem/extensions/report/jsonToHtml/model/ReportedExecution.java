@@ -3,6 +3,8 @@ package jsystem.extensions.report.jsonToHtml.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class ReportedExecution {
 
 	private List<ReportedMachine> machines;
@@ -22,6 +24,7 @@ public class ReportedExecution {
 		machines.add(machine);
 	}
 
+	@JsonIgnore
 	public ReportedMachine getLastMachine() {
 		if (null == machines) {
 			return null;

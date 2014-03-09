@@ -4,6 +4,18 @@ package jsystem.extensions.report.jsonToHtml.model;
 import jsystem.extensions.report.jsonToHtml.model.Enums.Status;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonSubTypes;
+import org.codehaus.jackson.annotate.JsonSubTypes.Type;
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+@JsonTypeInfo(
+	    use = JsonTypeInfo.Id.NAME,
+	    include = JsonTypeInfo.As.PROPERTY,
+	    property = "type")
+	@JsonSubTypes({
+	    @Type(value = ReportedScenario.class, name = "scenario"),
+	    @Type(value = ReportedTest.class, name = "test"),
+	    @Type(value = ReportedMachine.class, name = "machine") })
 
 public abstract class ReportedNode {
 

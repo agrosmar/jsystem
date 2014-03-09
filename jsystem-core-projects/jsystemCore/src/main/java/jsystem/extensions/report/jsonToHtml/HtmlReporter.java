@@ -32,6 +32,9 @@ import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.chainsaw.Main;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
@@ -80,6 +83,7 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 
 	public void init() {
 		updateLogDir();
+		updateModel();
 		copyResources();
 		ReportedMachine m = null;
 		try {
@@ -87,11 +91,43 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 		} catch (UnknownHostException e) {
 			m = new ReportedMachine("localhost");
 		}
-		execution = new ReportedExecution();
+		if (null == execution){
+			execution = new ReportedExecution();
+		}
 		execution.addMachine(m);
 		currentScenario = null;
 		currentTest = null;
 		index = 0;
+	}
+
+	private void updateModel() {
+		File executionJson = new File(reportDir+File.separator+"html"+File.separator+"model",fileName);
+		if (!executionJson.exists()){
+			return;
+		}
+		ObjectMapper mapper = new ObjectMapper();  
+	    try {
+	    	final String json = FileUtils.readFileToString(executionJson);
+			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), ReportedExecution.class);
+		} catch (IOException e) {
+			log.warning("Found execution json file but failed to reading it");
+		}  
+		
+	}
+	
+	public static void main(String[] args) {
+		File executionJson = new File(fileName);
+		if (!executionJson.exists()){
+			return;
+		}
+		ObjectMapper mapper = new ObjectMapper();
+		ReportedExecution execution = null;
+	    try {
+	    	String json = FileUtils.readFileToString(executionJson);
+			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), ReportedExecution.class);
+		} catch (IOException e) {
+			log.warning("Found execution json file but failed to read it due to "+e.getMessage());
+		}  
 	}
 
 	private static void decopmerss(String zipFile, String outputFolder, String filter) throws Exception {
