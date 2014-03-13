@@ -6,4 +6,7 @@ public class Enums {
 		success, warning, failure, error
 	}
 
+	public enum ElementType {
+		lnk, image, html, bold, step, startLevel,stopLevel
+	}
 }

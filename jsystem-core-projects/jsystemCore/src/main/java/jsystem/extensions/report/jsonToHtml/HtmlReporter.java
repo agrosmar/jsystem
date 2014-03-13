@@ -14,42 +14,48 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
 
+import jsystem.extensions.report.html.ExtendLevelTestReporter;
+import jsystem.extensions.report.jsonToHtml.model.Enums.ElementType;
 import jsystem.extensions.report.jsonToHtml.model.Enums.Status;
-import jsystem.extensions.report.jsonToHtml.model.ReportedExecution;
-import jsystem.extensions.report.jsonToHtml.model.ReportedMachine;
-import jsystem.extensions.report.jsonToHtml.model.ReportedNodeWithChildren;
-import jsystem.extensions.report.jsonToHtml.model.ReportedScenario;
-import jsystem.extensions.report.jsonToHtml.model.ReportedTest;
+import jsystem.extensions.report.jsonToHtml.model.execution.ReportedExecution;
+import jsystem.extensions.report.jsonToHtml.model.execution.ReportedMachine;
+import jsystem.extensions.report.jsonToHtml.model.execution.ReportedNodeWithChildren;
+import jsystem.extensions.report.jsonToHtml.model.execution.ReportedScenario;
+import jsystem.extensions.report.jsonToHtml.model.execution.ReportedTest;
+import jsystem.extensions.report.jsonToHtml.model.test.ReportElement;
+import jsystem.extensions.report.jsonToHtml.model.test.TestDetails;
 import jsystem.extensions.report.xml.XmlReporter;
 import jsystem.framework.FrameworkOptions;
 import jsystem.framework.JSystemProperties;
 import jsystem.framework.report.ExtendTestListener;
-import jsystem.framework.report.ExtendTestReporter;
+import jsystem.framework.report.Reporter.EnumReportLevel;
 import jsystem.framework.report.TestInfo;
 import jsystem.framework.scenario.JTestContainer;
 import jsystem.framework.scenario.flow_control.AntForLoop;
+import jsystem.utils.StringUtils;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.chainsaw.Main;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
+public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener {
 
 	static Logger log = Logger.getLogger(XmlReporter.class.getName());
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-	private static final String fileName = "execution.js";
+	private static final ObjectMapper mapper = new ObjectMapper();
 
-	private static ObjectMapper mapper;
+	private static final String executionModelfile = "execution.js";
+
+	private static final String testDetailsModelFile = "test%s.js";
 
 	private ReportedExecution execution;
 
 	private ReportedNodeWithChildren currentScenario;
+
+	public TestDetails testDetails;
 
 	private ReportedTest currentTest;
 
@@ -67,10 +73,39 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 	}
 
 	public void report(String title, String message, boolean isPass, boolean bold) {
-
+		report(title, message, isPass ? 0 : 1, bold, false, false);
 	}
 
 	public void report(String title, String message, int status, boolean bold) {
+		report(title, message, status, bold, false, false);
+	}
+
+	public void report(String title, String message, int status, boolean bold, boolean html, boolean link) {
+		ReportElement element = new ReportElement();
+		element.setTitle(title);
+		element.setMessage(message);
+		switch (status) {
+		case 0:
+			element.setStatus(Status.success);
+			break;
+		case 1:
+			element.setStatus(Status.failure);
+			break;
+		case 2:
+			element.setStatus(Status.warning);
+			break;
+		default:
+			element.setStatus(Status.success);
+		}
+		if (bold) {
+			element.setType(ElementType.bold);
+		} else if (html) {
+			element.setType(ElementType.html);
+		} else if (link) {
+			element.setType(ElementType.lnk);
+		}
+		testDetails.addReportElement(element);
+
 	}
 
 	public String getName() {
@@ -91,7 +126,7 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 		} catch (UnknownHostException e) {
 			m = new ReportedMachine("localhost");
 		}
-		if (null == execution){
+		if (null == execution) {
 			execution = new ReportedExecution();
 		}
 		execution.addMachine(m);
@@ -101,33 +136,34 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 	}
 
 	private void updateModel() {
-		File executionJson = new File(reportDir+File.separator+"html"+File.separator+"model",fileName);
-		if (!executionJson.exists()){
+		File executionJson = new File(reportDir + File.separator + "html" + File.separator + "model",
+				executionModelfile);
+		if (!executionJson.exists()) {
 			return;
 		}
-		ObjectMapper mapper = new ObjectMapper();  
-	    try {
-	    	final String json = FileUtils.readFileToString(executionJson);
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			final String json = FileUtils.readFileToString(executionJson);
 			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), ReportedExecution.class);
 		} catch (IOException e) {
 			log.warning("Found execution json file but failed to reading it");
-		}  
-		
+		}
+
 	}
-	
+
 	public static void main(String[] args) {
-		File executionJson = new File(fileName);
-		if (!executionJson.exists()){
+		File executionJson = new File(executionModelfile);
+		if (!executionJson.exists()) {
 			return;
 		}
 		ObjectMapper mapper = new ObjectMapper();
 		ReportedExecution execution = null;
-	    try {
-	    	String json = FileUtils.readFileToString(executionJson);
+		try {
+			String json = FileUtils.readFileToString(executionJson);
 			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), ReportedExecution.class);
 		} catch (IOException e) {
-			log.warning("Found execution json file but failed to read it due to "+e.getMessage());
-		}  
+			log.warning("Found execution json file but failed to read it due to " + e.getMessage());
+		}
 	}
 
 	private static void decopmerss(String zipFile, String outputFolder, String filter) throws Exception {
@@ -189,7 +225,6 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 
 	}
 
-
 	protected void updateLogDir() {
 		reportDir = JSystemProperties.getInstance().getPreference(FrameworkOptions.LOG_FOLDER);
 		if (reportDir == null || reportDir.equals("./log")) {
@@ -209,6 +244,15 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 
 	public void endTest(Test arg0) {
 		currentTest.setDuration(System.currentTimeMillis() - testStartTime);
+		try {
+			String json = mapper.writeValueAsString(testDetails);
+			json = "var execution = " + json;
+			FileUtils.write(
+					new File(reportDir + File.separator + "html" + File.separator + "model", String.format(
+							testDetailsModelFile, testDetails.getName())), json);
+		} catch (Exception e) {
+			log.warning("Failed to write test details due to " + e.getMessage());
+		}
 
 	}
 
@@ -229,7 +273,15 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 		currentTest.setTimestamp(sdf.format(new Date()));
 		currentScenario.addChild(currentTest);
 		testStartTime = System.currentTimeMillis();
-
+		testDetails = new TestDetails(methodName);
+		testDetails.setDescription(testInfo.comment);
+		testDetails.addProperty("Class Name", testInfo.className);
+		testDetails.addProperty("Class Documentation", testInfo.classDoc);
+		if (!StringUtils.isEmpty(testInfo.parameters)) {
+			for (String parameter : testInfo.parameters.split(";")) {
+				testDetails.addParameter(parameter.split("=")[0], parameter.split("=")[1]);
+			}
+		}
 	}
 
 	public void toJson() {
@@ -237,13 +289,11 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 	}
 
 	public void endRun() {
-		if (mapper == null) {
-			mapper = new ObjectMapper();
-		}
 		try {
 			String json = mapper.writeValueAsString(execution);
 			json = "var execution = " + json;
-			FileUtils.write(new File(reportDir + File.separator + "html" + File.separator + "model", fileName), json);
+			FileUtils.write(
+					new File(reportDir + File.separator + "html" + File.separator + "model", executionModelfile), json);
 			// mapper.writeValue(new File(fileName), execution);
 		} catch (Exception e) {
 			log.warning("Failed to write html report due to " + e.getMessage());
@@ -277,9 +327,6 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 
 	}
 
-	public void report(String title, String message, int status, boolean bold, boolean html, boolean link) {
-	}
-
 	public void startSection() {
 	}
 
@@ -290,12 +337,45 @@ public class HtmlReporter implements ExtendTestReporter, ExtendTestListener {
 	}
 
 	public void addProperty(String key, String value) {
+		testDetails.addProperty(key, value);
 	}
 
 	public void setContainerProperties(int ancestorLevel, String key, String value) {
 	}
 
 	public void flush() throws Exception {
+	}
+
+	@Override
+	public void startLevel(String level, EnumReportLevel place) throws IOException {
+		ReportElement element = new ReportElement();
+		element.setTitle(level);
+		element.setType(ElementType.startLevel);
+		testDetails.addReportElement(element);
+	}
+
+	@Override
+	public void startLevel(String levelName, int place) throws IOException {
+		startLevel(levelName, null);
+	}
+
+	@Override
+	public void stopLevel() {
+		ReportElement element = new ReportElement();
+		element.setType(ElementType.stopLevel);
+		testDetails.addReportElement(element);
+	}
+
+	@Override
+	public void closeAllLevels() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void closeLevelsUpTo(String levelName, boolean includeLevel) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

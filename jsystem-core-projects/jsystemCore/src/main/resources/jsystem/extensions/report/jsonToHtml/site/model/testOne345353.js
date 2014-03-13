@@ -43,7 +43,7 @@ var testJson = {
             "reportElements": [
                 {
                     "timestamp": "11:50:23",
-                    "status":"warning",
+                    "status":"success",
                     "title": "Clickin on some button"
 
                 },

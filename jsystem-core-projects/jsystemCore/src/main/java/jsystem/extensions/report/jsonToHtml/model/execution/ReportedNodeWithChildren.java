@@ -1,4 +1,4 @@
-package jsystem.extensions.report.jsonToHtml.model;
+package jsystem.extensions.report.jsonToHtml.model.execution;
 
 import java.util.ArrayList;
 import java.util.List;

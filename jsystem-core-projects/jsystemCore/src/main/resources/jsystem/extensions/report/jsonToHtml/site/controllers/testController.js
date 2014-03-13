@@ -82,10 +82,7 @@ $(document).ready(function(){
         $('#testNameHeadline').append(json.name);
         $('#testDescription').append(json.description);
         paramsTableApp = setParamsTable(testJson.parameters);
-        $('#paramBody').append(paramsTableApp);
         stepTable = buildStepsTable(testJson.steps);
-        $('#stepTables').append(stepTable);
-
     }
 )
 
@@ -95,7 +92,7 @@ function setParamsTable(parameters){
         if (parameters.hasOwnProperty(j)){
             for (var i in parameters[j]){
                 if (parameters[j].hasOwnProperty(i)){
-                    paramsTableApp += "<tr>\n" + "<td>" + i + "</td>\n" + "<td>" + parameters[j][i] + "</td>\n"+"</tr>\n"
+                    $('#paramBody').append($('<tr>').append($('<td>').text(i)).append($('<td>').text(parameters[j][i])));
                  }
             };
         }
@@ -104,24 +101,53 @@ function setParamsTable(parameters){
 }
 
 function buildStepsTable(steps){
-    var stepTable = "";
+    var status = "";
     for (var i in steps){
         if (steps.hasOwnProperty(i)){
-            stepTable += "<br>\n" + "<table class='testtbl' >\n" + "<thead>\n" + "<tr>\n" + "<th>" + steps[i].timestamp + "</th>\n";
-            stepTable += "<th";
+            $('#stepTables').append($('<table>').addClass("testtbl").attr('id', "table"+i).append($('<thead>').append($('<tr>').append($('<th>').text(steps[i].timestamp))
+                .append($('<th>').append($('<div>').click(function(){toggle("step"+i)}).text(steps[i].description)))))).append($('<br>'));
             if(steps[i].status === "failure"){
-                stepTable += " class='header fail'";
+                $("#table"+i+" thead").addClass("header fail");
             }
             else if(steps[i].status === "warning"){
-                stepTable += " class='header warning'";
+                $("#table"+i+" thead").addClass("header warning");
             }
-            stepTable += ">\n<div onclick=" + String.fromCharCode(34) +"toggle('step" + i + "')" + String.fromCharCode(34) + ">";
-            stepTable += steps[i].description + "</div></th>\n" + "</tr>\n </thead>\n <tbody id='step" + i + "' >\n";
-            stepTable += addSubSteps(steps[i].reportElements);
-            stepTable+= "</tbody>\n</table>\n<br/>\n";
+            $("#table"+i).append($('<tbody>').attr('id', "step" + i));
+            $(steps[i].reportElements).each(function(){
+                    if(this.status === "warning"){
+                        status = "warning";
+                    }
+                    else if(this.status === "failure"){
+                        status = "fail";
+                    }
+                    if(this.hasOwnProperty("type")){
+                        switch(this.type)
+                        {
+                            case "IMAGE":
+                                $("#table"+i+" tbody").append($('<tr>').append($('<td>').text(this.timestamp))
+                                .append($('<td>').addClass(status).append($('<a>').click(function(){toggle("sc")}).text(this.title)).append($('<div>').append($('<img>').attr('id',"sc")
+                                    .attr('style', "display:none").attr('src', this.file).attr('height','500').attr('width','500')))));
+                                break;
+                            case "LOG":
+                            case "VIDEO":
+                                $("#table"+i+" tbody").append($('<tr>').append($('<td>').text(this.timestamp))
+                                .append($('<td>').addClass(status).text(this.title)));
+                                break;
+                        }
+                    }
+                    else if(this.hasOwnProperty("message")){
+                        $("#table"+i+" tbody").append($('<tr>').append($('<td>').text(this.timestamp))
+                        .append($('<td>').addClass(status).text(this.title)));
+                        //TODO: If it is some message we want to present to user how do we want to do it?
+                    }
+                    else{
+                        $("#table"+i+" tbody").append($('<tr>').append($('<td>').text(this.timestamp))
+                        .append($('<td>').addClass(status).text(this.title)));
+                    };
+                }
+            )
         }
     };
-    return stepTable;
 }
 
 function addSubSteps(elements){
@@ -149,7 +175,6 @@ function addSubSteps(elements){
             else if(elements[j].hasOwnProperty("message")){
                 stepTable += "<td>" + elements[j].title + "</td>\n";
                 //TODO: If it is some message we want to present to user how do we want to do it?
-                console.log("doing something with message");
             }
             else{
                 stepTable += "<td";
