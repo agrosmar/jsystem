@@ -3,17 +3,22 @@
  * Tests table table-layout:fixed;
  */
 
+/*.toggle {color:#191970;}*/
 /* Time stamp */
-.testtbl tbody tr td:first-child {text-align: left; color: gray ;}
-.testtbl tbody td {text-align: left; }
+.detailsTbl tbody tr td:first-child {text-align: left; color: gray ;}
+.detailsTbl tbody td {text-align: left; }
 /* Header */
-.testtbl > thead th {text-align: left}
-.testtbl {padding:0;  border-spacing: 0px;border:1px solid #E0E0E0;width:100%}
-.testtbl tr td:first-child,.testtbl tr th:first-child {width:100px;}
+.detailsTbl > thead th {text-align: left}
+.detailsTbl {padding:10px ;  border-spacing: 0px;border:1px solid #E0E0E0;width:100%}
+.detailsTbl tr td:first-child,.testtbl tr th:first-child {width:100px;}
 
+.detailsTbl .toggle {color:blue;}
 /******
 * Test Statuses
 */
-.fail  { color: red; }
-.warning  { color : yellow; }
+.detailsTbl .failure { color: #ff8888; }
+.detailsTbl .warning { color: #ffff77; }
+.detailsTbl .error { color: #4682B4; }
 
+.smallTbl { padding: 0; border: 0; width: 70% ; font-size: small}
+h3 {color: gray ; font-size: small}

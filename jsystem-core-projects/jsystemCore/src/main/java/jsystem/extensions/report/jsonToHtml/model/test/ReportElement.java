@@ -22,7 +22,7 @@ public class ReportElement {
 	private ElementType type;
 
 	@JsonProperty("time")
-	private long time = 0;
+	private String time;
 
 	@JsonProperty("title")
 	public String getTitle() {
@@ -65,12 +65,12 @@ public class ReportElement {
 	}
 
 	@JsonProperty("time")
-	public long getTime() {
+	public String getTime() {
 		return time;
 	}
 
 	@JsonProperty("time")
-	public void setTime(long time) {
+	public void setTime(String time) {
 		this.time = time;
 	}
 

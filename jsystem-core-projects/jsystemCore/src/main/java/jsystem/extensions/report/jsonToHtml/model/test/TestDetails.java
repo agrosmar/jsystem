@@ -32,15 +32,15 @@ public class TestDetails {
 
 	@JsonProperty("reportElements")
 	private List<ReportElement> reportElements;
-	
-	public TestDetails(String name){
+
+	public TestDetails(String name) {
 		this.name = name;
 	}
-	
-	public TestDetails(){
-		
+
+	public TestDetails() {
+
 	}
-	
+
 	@JsonIgnore
 	public void addReportElement(ReportElement element) {
 		if (null == reportElements) {
@@ -63,6 +63,16 @@ public class TestDetails {
 			parameters = new HashMap<String, String>();
 		}
 		parameters.put(key, value);
+	}
+
+	@Override
+	@JsonIgnore
+	public int hashCode() {
+		int hash = 1;
+		hash = hash * 17 + parameters.hashCode();
+		hash = hash * 13 + properties.hashCode();
+		hash = hash * 31 + name.hashCode();
+		return hash;
 	}
 
 	public String getName() {

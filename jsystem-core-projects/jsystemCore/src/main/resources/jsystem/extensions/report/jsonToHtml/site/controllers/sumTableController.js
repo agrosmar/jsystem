@@ -47,7 +47,7 @@ function appendTestsToSumTable(tests, table) {
         var tests = this.success + this.error + this.failure + this.warning * 1;
         tr.append($('<td>').text(tests));
         total.tests+=tests;
-        var duration = this.duration / 1000;
+        var duration = Math.round(this.duration / 1000);
         tr.append($('<td>').text(duration + "s"));
         total.duration += this.duration;
         tr.append($('<td>').text(this.success).addClass(this.success > 0 ? "success" : ""));
@@ -58,20 +58,23 @@ function appendTestsToSumTable(tests, table) {
         total.failure += this.failure;
         tr.append($('<td>').text(this.warning).addClass(this.warning > 0 ? "warning" : ""));
         total.warning += this.warning;
-        var passRate = this.success / (this.success + this.error + this.failure + this.warning) * 100;
-        tr.append($('<td>').text(passRate + "%"));
+        tr.append($('<td>').text(calculateSuccessRate(this)+"%"));
         $(table).append(tr);
     });
     var tr = $('<tr>');
     tr.append($('<td>').text("Total"));
     tr.append($('<td>').text(total.tests));
-    tr.append($('<td>').text(total.duration / 1000+"s"));
+    tr.append($('<td>').text(Math.round(total.duration / 1000)+"s"));
     tr.append($('<td>').text(total.success).addClass(total.success > 0 ? "success" : ""));
     tr.append($('<td>').text(total.error).addClass(total.error > 0 ? "error" : ""));
     tr.append($('<td>').text(total.failure).addClass(total.failure > 0 ? "failure" : ""));
     tr.append($('<td>').text(total.warning).addClass(total.warning > 0 ? "warning" : ""));
-    tr.append($('<td>').text(total.success / (total.success + total.error + total.failure + total.warning) * 100 + "%"));
+    tr.append($('<td>').text(calculateSuccessRate(total)+"%"));
     $(table).append(tr);
+}
+
+function calculateSuccessRate(element){
+    return Math.round(element.success / (element.success + element.error + element.failure + element.warning) * 100);
 }
 
 function sumTableController(element) {
