@@ -69,9 +69,15 @@ public class TestDetails {
 	@JsonIgnore
 	public int hashCode() {
 		int hash = 1;
-		hash = hash * 17 + parameters.hashCode();
-		hash = hash * 13 + properties.hashCode();
-		hash = hash * 31 + name.hashCode();
+		if (parameters != null) {
+			hash = hash * 17 + parameters.hashCode();
+		}
+		if (properties != null) {
+			hash = hash * 13 + properties.hashCode();
+		}
+		if (name != null) {
+			hash = hash * 31 + name.hashCode();
+		}
 		return hash;
 	}
 

@@ -29,7 +29,7 @@ public class TestTestDetails {
 		e0.setTitle("this is the title");
 		e0.setMessage("This is the message");
 		e0.setType(ElementType.bold);
-		e0.setTime(32323);
+		e0.setTime("23:34");
 		e0.setStatus(Status.failure);
 		t.addReportElement(e0);
 		
@@ -37,7 +37,7 @@ public class TestTestDetails {
 		e1.setTitle("this is the title");
 		e1.setMessage("This is the message");
 		e1.setType(ElementType.html);
-		e1.setTime(32323);
+		e1.setTime("34:34");
 		e1.setStatus(Status.success);
 		t.addReportElement(e1);
 
