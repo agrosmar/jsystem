@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>Test Details</title>
+        <link href="../../css/general_page.css" rel="stylesheet">
+        <link href="../../css/test_page.css" rel="stylesheet">
+    <body id="page">
+        <div id="container">
+            <div id="name" class="full_width big">
+                
+            </div>
+            <h1>Results for date <span id="timestamp">29/01/2014 11:49:23</span></h1>
+            <div>
+                <h2 id="description">This is the test description</h2>
+                <table id='propTbl' cellpadding="0" cellspacing="0" border="0" width="30%">
+                    <tbody>
+                    </tbody>
+                </table>
+                <br>    
+                <table id='paramTbl' cellpadding="0" cellspacing="0" border="0" width="30%">
+                    <thead>
+                        <tr>
+                            <th align='left'>Parameter</th>
+                            <th align='left'>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+            <br>
+            <div>
+                <br>
+                <!-- cellspacing="0" border="0" -->
+                <table class="detailsTbl" >
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody >
+                        <tr>
+                            <td>11:49:23</td>
+                            <td>Clicking on some button</td>
+                        </tr>
+
+                        <tr>	
+                            <td>11:49:25</td>
+                            <td>Entering text to something</td>
+                        </tr>
+
+                        <tr>
+                            <td>11:49:23</td>
+                            <td  onclick="toggle('t1')">Start level</td>
+                        </tr>
+                        <tr id='t1' >
+                            <td colspan="2">
+                                <table class="detailsTbl" >
+                                    <tbody >
+                                        <tr>
+                                            <td>11:49:23</td>
+                                            <td>Clicking on some button</td>
+                                        </tr>
+                                        <tr>
+                                            <td>11:49:23</td>
+                                            <td><a href="myText.txt">Link to text</a></td>
+                                        </tr>
+
+                                        <tr>	
+                                            <td>11:49:25</td>
+                                            <td>Entering text to something</td>
+                                        </tr>
+                                        <tr>
+                                            <td>11:49:23</td>
+                                            <td>Some message</td>
+                                        </tr>
+                                        <tr>
+                                            <td>11:49:23</td>
+                                            <td onclick="toggle('t2')">Start level</td>
+                                        </tr>
+                                        <tr id='t2' >
+                                            <td colspan="2">
+                                                <table class="detailsTbl" >
+                                                    <tbody >
+                                                        <tr>
+                                                            <td>11:49:23</td>
+                                                            <td>Clicking on some button</td>
+                                                        </tr>
+
+                                                        <tr>	
+                                                            <td>11:49:25</td>
+                                                            <td>Entering text to something</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>11:49:23</td>
+                                                            <td>Some message</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>	
+                            <td>11:49:25</td>
+                            <td>Entering text to something</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+                <br>
+            </div>
+            <script type="text/javascript" src="../../js/jquery.js"></script>
+            <script type="text/javascript" src="test.js"></script>
+            <script type="text/javascript" src="../../controllers/testController.js"></script>
+            <script type="text/javascript">
+                function populateTestDetails(){
+                    testController($("#container"));
+                }
+                
+                
+              $(document).ready(function() {
+                                populateTestDetails();
+                            });
+                
+            </script>
+    </body>
+</html>

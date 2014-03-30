@@ -13,6 +13,7 @@
 .detailsTbl tr td:first-child,.testtbl tr th:first-child {width:100px;}
 
 .detailsTbl .toggle {color:blue;}
+.detailsTbl .step td:last-child {height:35px; font-size: medium ;color: #4E6CA3;}
 /******
 * Test Statuses
 */
@@ -22,3 +23,4 @@
 
 .smallTbl { padding: 0; border: 0; width: 70% ; font-size: small}
 h3 {color: gray ; font-size: small}
+img {width: 100px}

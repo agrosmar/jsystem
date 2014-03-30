@@ -164,11 +164,17 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			element.setStatus(Status.success);
 		}
 		if (bold) {
-			element.setType(ElementType.bold);
+			element.setType(ElementType.step);
 		} else if (html) {
 			element.setType(ElementType.html);
 		} else if (link) {
-			element.setType(ElementType.lnk);
+			if (message.toLowerCase().endsWith("png") || message.toLowerCase().endsWith("gif")
+					|| message.toLowerCase().endsWith("jpg") || message.toLowerCase().endsWith("bmp")) {
+				// We have a image
+				element.setType(ElementType.img);
+			} else {
+				element.setType(ElementType.lnk);
+			}
 		}
 		testDetails.addReportElement(element);
 		testToFile();
