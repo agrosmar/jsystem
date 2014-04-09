@@ -252,7 +252,13 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		}
 		ReportedMachine m = new ReportedMachine(getMachineName());
 		execution.addMachine(m);
-		currentScenario = null;
+		if (JSystemProperties.getInstance().isExecutedFromIDE()) {
+			// We are running from the IDE, so there will be no scenario
+			currentScenario = new ReportedScenario("default");
+			m.addChild(currentScenario);
+		} else {
+			currentScenario = null;
+		}
 		currentTest = null;
 		executionToFile();
 
@@ -424,11 +430,14 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		specialReportsElementsHandler = new SpecialReportElementsHandler();
 		updateTestDirectoryFile("tests" + File.separator + "test_" + index);
 		String testName = testInfo.meaningfulName;
-		if (testName == null) {
+		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.methodName;
 		}
-		if (testName == null) {
+		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.basicName;
+		}
+		if (null == testName || "null".equals(testName)) {
+			testName = testInfo.className;
 		}
 		currentTest = new ReportedTest(index++, testName);
 		testStartTime = System.currentTimeMillis();
@@ -690,7 +699,12 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 				return false;
 			}
 			if (title.contains(SPAN_OPEN_TAG)) {
-				spanTrace++;
+				// ITAI: This is a ugly hack, When we execute from the IDE there
+				// is a missing span close tag, so we
+				// Never increase the number of the span trace above one.
+				if (!(JSystemProperties.getInstance().isExecutedFromIDE() && spanTrace == 1)) {
+					spanTrace++;
+				}
 			}
 			if (spanTrace > 0) {
 				// In span, let's search for that special elements
@@ -717,7 +731,10 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 				return false;
 			}
 
-			return spanTrace == 0;
+			// ITAI: When running from the IDE, there are missing span closing
+			// tags, so we do not increase the span trace after level one. The
+			// result is that the span trace may have a negative value
+			return spanTrace <= 0;
 		}
 	}
 
