@@ -17,7 +17,7 @@ function appendTestsToSumTable(tests, table) {
         if (suiteName !== null && suiteName !== this.suiteName) {
             //TODO : Handle same scenario name in different machines
             suites.push({"name": suiteName, "duration": duration, "success": success, "error": error, "failure": failure, "warning": warning});
-            success = error = failure = warning = 0;
+            success = error = failure = warning = duration = 0;
         }
         suiteName = this.suiteName;
         switch (this.status) {
@@ -74,7 +74,11 @@ function appendTestsToSumTable(tests, table) {
 }
 
 function calculateSuccessRate(element){
-    return Math.round(element.success / (element.success + element.error + element.failure + element.warning) * 100);
+    var allTests = element.success + element.error + element.failure + element.warning;
+    if (allTests === 0){
+        return 0;
+    }
+    return Math.round(element.success / allTests * 100);
 }
 
 function sumTableController(element) {

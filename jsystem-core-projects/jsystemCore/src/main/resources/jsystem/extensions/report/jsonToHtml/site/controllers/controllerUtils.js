@@ -7,8 +7,8 @@
 function getTestColors(){
     var colors = new Object();
     colors.success = "#88ee88";
-    colors.failure = "#ff8888";
-    colors.error = "#4682B4";
+    colors.error = "#ff8888";
+    colors.failure = "#4682B4";
     colors.warning = "#ffff77";
     return colors;
 }
@@ -26,6 +26,12 @@ function collectTestsFromScenario(children,tests){
     });
 }
 
+/**
+ * Collects all the tests from the model into array. Each item in the array
+ * contains a single test including the scenario and machine name.
+ * 
+ * @returns {collectAllTests.tests|Array}
+ */
 function collectAllTests(){
     var tests = new Array();
     $(execution.machines).each(function(){

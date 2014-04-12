@@ -61,7 +61,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener {
 
-	static Logger log = Logger.getLogger(XmlReporter.class.getName());
+	private static final Logger log = Logger.getLogger(XmlReporter.class.getName());
 
 	private static final String resourcesPath = "jsystem/extensions/report/jsonToHtml/site";
 
@@ -144,6 +144,11 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 	}
 
 	public void report(String title, String message, int status, boolean bold, boolean html, boolean link) {
+		if (null == specialReportsElementsHandler) {
+			// This never suppose to happen, since it was initialized in the
+			// start test event.
+			specialReportsElementsHandler = new SpecialReportElementsHandler();
+		}
 		if (!specialReportsElementsHandler.isValidAndHandleSpecial(title)) {
 			return;
 		}
