@@ -116,3 +116,10 @@
 	   -moz-border-radius: 3px;
 	        border-radius: 3px;
 }
+
+iframe[seamless] {
+    background-color: transparent;
+    border: 0px none transparent;
+    padding: 0px;
+    overflow: hidden;
+}
