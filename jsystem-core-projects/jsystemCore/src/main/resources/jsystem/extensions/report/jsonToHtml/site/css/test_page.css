@@ -24,3 +24,9 @@
 .smallTbl { padding: 0; border: 0; width: 70% ; font-size: small}
 h3 {color: gray ; font-size: small}
 img {width: 100px}
+
+tr.startLevel {
+    color: #0000CC;
+    cursor: pointer;
+    font-weight: bold;
+}
