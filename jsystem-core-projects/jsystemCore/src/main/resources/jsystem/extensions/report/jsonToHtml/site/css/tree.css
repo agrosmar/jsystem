@@ -9,3 +9,13 @@ and open the template in the editor.
 */
 
 .jstree-classic li[rel="succeess"] > a { color:green; }
+.jstree-node.error , jstree-node.failure , .jstree-anchor.error , .jstree-anchor.failure{
+    color: rgb(216, 14, 14) !important;
+    font-weight: bold;
+}
+.jstree-node.success , .jstree-anchor.success{
+    /* in case we want different style for success status */
+}
+.jstree-node.warning , .jstree-anchor.warning{
+    /* in case we want different style for warning status */
+}
