@@ -5,12 +5,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jsystem.extensions.report.jsonToHtml.model.Enums.ElementType;
+import jsystem.extensions.report.jsonToHtml.model.Enums.Status;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.annotate.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "name", "description", "timestamp", "duration", "parameters", "properties", "reportElements" })
 public class TestDetails {
+
+	/**
+	 * Required for updating the statuses of all the start level elements if one
+	 * of the contained elements status is not success.
+	 */
+	@JsonIgnore
+	private List<ReportElement> levelElementsBuffer;
 
 	@JsonProperty("name")
 	private String name;
@@ -46,7 +56,59 @@ public class TestDetails {
 		if (null == reportElements) {
 			reportElements = new ArrayList<ReportElement>();
 		}
+		if (element.getStatus() == null){
+			element.setStatus(Status.success);
+		}
 		reportElements.add(element);
+		updateLevelElementsBuffer(element);
+		updateLevelElementsStatuses(element);
+	}
+
+	/**
+	 * Update the status of all the level elements in the buffer according to
+	 * the specified element;
+	 * 
+	 * @param element
+	 */
+	@JsonIgnore
+	private void updateLevelElementsStatuses(final ReportElement element) {
+		if (element == null || element.getType() == null){
+			return;
+		}
+		if (element.getStatus() == Status.success) {
+			// Nothing to do
+			return;
+		}
+		for (ReportElement startElement : levelElementsBuffer) {
+			if (element.getStatus().ordinal() > startElement.getStatus().ordinal()) {
+				startElement.setStatus(element.getStatus());
+			}
+		}
+	}
+
+	/**
+	 * Adds start level elements to the buffer or remove element if the
+	 * specified element is stop element
+	 * 
+	 * @param element
+	 */
+	@JsonIgnore
+	private void updateLevelElementsBuffer(final ReportElement element) {
+		if (element == null || element.getType() == null){
+			return;
+		}
+		if (element.getType() == ElementType.startLevel) {
+			if (null == levelElementsBuffer) {
+				levelElementsBuffer = new ArrayList<>();
+			}
+			levelElementsBuffer.add(element);
+		} else if (element.getType() == ElementType.stopLevel) {
+			if (levelElementsBuffer == null || levelElementsBuffer.size() == 0) {
+				// Never should happen
+				return;
+			}
+			levelElementsBuffer.remove(levelElementsBuffer.size() - 1);
+		}
 	}
 
 	@JsonIgnore

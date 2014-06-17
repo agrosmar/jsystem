@@ -180,6 +180,8 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			} else {
 				element.setType(ElementType.lnk);
 			}
+		} else {
+			element.setType(ElementType.regular);
 		}
 		testDetails.addReportElement(element);
 		testToFile();

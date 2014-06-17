@@ -5,6 +5,7 @@
  */
 var idIndex = 0;
 var levelsTracker;
+var toggleTime = 200;
 
 function LevelInfo(rowId, levelDepth) {
     this.rowId = rowId;
@@ -30,7 +31,7 @@ function ReportLevelsTracker() {
      // how deep it is nested in the report levels system
     this.currentLevelDepth = 0;
     
-     // A stack data structure to keep the "path" to the current current level.
+     // A stack data structure to keep the "path" to the current level.
      // Keeps the the row IDs on the path to the current "Start Level" 
     this.levelsStack = [];
 }
@@ -132,7 +133,7 @@ function addToggleElement(table, toggle, toggled, startAsOpened) {
         doToggle(id);
     });
     $(toggle).addClass("toggle");
-    $(toggled).attr("id", id).find("td").attr("colspan", "2");
+    $(toggled).attr("id", id).find("td"); //removed by Rony: .attr("colspan", "2");
     if (startAsOpened) {
         toggled.show();
     } else {
@@ -162,15 +163,22 @@ function setRegularElement(table, element) {
     
     tr.append($('<td>').text(element.time));
     
+    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
+    
     if (isPropertyExist(element, "message")) {
-        tr.append($('<td>').text(element.title));
+        tr.append($('<td>').html(indentation + element.title));
         addStatusAsClass(tr, element);
+        
+        // message row
         var messageTr = $("<tr>");
-        messageTr.append($('<td>').text(element.message));
+        messageTr.attr("rowId", levelInfo.rowId);
+        messageTr.attr("levelDepth", levelInfo.levelDepth);
+        
+        messageTr.append($('<td>')); // empty cell for where we usually have the time
+        messageTr.append($('<td>').html(indentation + "&nbsp;&nbsp;&nbsp;&nbsp;" + element.message));
         addToggleElement(table, tr, messageTr, false);
 
     } else {
-        var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
         tr.append($('<td>').html(indentation + element.title));
         addStatusAsClass(tr, element);
         $(table).append(tr);
@@ -291,7 +299,7 @@ function testController(element) {
 }
 
 function doToggle(id) {
-    $("#" + id).toggle(200);
+    $("#" + id).toggle(toggleTime);
 }
 
 function indentationStrByLevelDepth(element, levelDepth) {
@@ -307,19 +315,28 @@ function indentationStrByLevelDepth(element, levelDepth) {
     return indentation;
 }
 
+// check if the specified element's "id" attribute contains "toggled_"
+function hasToggledId(element) {
+    var idAtrr = $(element).attr("id");
+    if (idAtrr === undefined) {
+        return false;
+    }
+    return (idAtrr.indexOf("toggled_") > -1);
+}
+
 function prepareLevels() {
-    
+
     // Hide all levels content
-    $('tr.startLevel').each(function() {
-        
+    $('.startLevel').each(function() {
+
         var currentLevelId = $(this).attr("rowId");
         var levelDescendantIds = levelsTracker.getLevelDescendants(currentLevelId);
-        
-        for (var i=0; i<levelDescendantIds.length; i++) {
-            $("tr[rowId=" + levelDescendantIds[i] + "]").hide();    
+
+        for (var i = 0; i < levelDescendantIds.length; i++) {
+            $("tr[rowId=" + levelDescendantIds[i] + "]").hide();
         }
     });
-    
+
     // Toggle level content visibility on click
     $(".startLevel").click(function() {
 
@@ -329,18 +346,28 @@ function prepareLevels() {
 
         for (var i = 0; i < levelDescendantIds.length; i++) {
 
-            var descendantRow = $("tr[rowId=" + levelDescendantIds[i] + "]");
-            var descendantRowDepth = parseInt($(descendantRow).attr("levelDepth"));
+            $("tr[rowId=" + levelDescendantIds[i] + "]").each(function() {
 
-            if (descendantRowDepth === clickedLevelDepth) {
-                $(descendantRow).toggle();
-            }
-            else if (descendantRowDepth === (clickedLevelDepth + 1) && $(descendantRow).attr("class") === "startLevel") {
-                $(descendantRow).toggle();
-            }
-            else if ((descendantRowDepth > clickedLevelDepth && $(descendantRow).is(":visible"))) {
-                $(descendantRow).hide();
-            }
+                var descendantRowDepth = parseInt($(this).attr("levelDepth"));
+
+                if (!hasToggledId(this)) { // if this is a regular table row - not a message row
+
+                    if (descendantRowDepth === clickedLevelDepth) {
+                        $(this).toggle(toggleTime);
+                    }
+                    else if (descendantRowDepth === (clickedLevelDepth + 1) && $(this).hasClass("startLevel")) {
+                        $(this).toggle(toggleTime);
+                    }
+                    else if ((descendantRowDepth > clickedLevelDepth && $(this).is(":visible"))) {
+                        $(this).hide(toggleTime);
+                    }
+                }
+                else { // this is a row containing a message - hide it if it was visible
+                    if ($(this).is(":visible")) {
+                        $(this).hide(toggleTime);
+                    }
+                }
+            });
         }
     });
 }

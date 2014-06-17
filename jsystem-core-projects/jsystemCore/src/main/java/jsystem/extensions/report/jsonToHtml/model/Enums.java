@@ -7,6 +7,6 @@ public class Enums {
 	}
 
 	public enum ElementType {
-		lnk, img, html, step, startLevel,stopLevel
+		regular, lnk, img, html, step, startLevel, stopLevel
 	}
 }
