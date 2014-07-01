@@ -53,7 +53,7 @@ function treeController(element) {
     var json = execution;
     var tree = {'text': 'JSystem', 'icon': 'images/jsystem_ico.gif', 'children': []};
     $(json.machines).each(function(machineIndex) {
-        tree.children.push({'text': this.name, icon: 'images/device.gif', 'children': [], 'state': {'opened': true, 'selected': true}});
+        tree.children.push({'text': this.name, icon: 'images/machine.png', 'children': [], 'state': {'opened': true, 'selected': true}});
         $(this.children).each(function(scenarioIndex) {
             var children = new Array();
             tree.children[machineIndex].children[scenarioIndex] = {'text': this.name, icon: suiteIcon(this.status), 'children': children};
@@ -83,7 +83,7 @@ function treeController(element) {
 //                                        'children': [
 //                                            {
 //                                                'text': '127.0.0.1',
-//                                                'icon': 'images/device.gif',
+//                                                'icon': 'images/machine.png',
 //                                                'state': {
 //                                                    'opened': true,
 //                                                    'selected': true

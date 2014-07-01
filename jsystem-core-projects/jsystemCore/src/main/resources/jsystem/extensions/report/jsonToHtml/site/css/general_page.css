@@ -117,9 +117,11 @@
 	        border-radius: 3px;
 }
 
-iframe[seamless] {
+iframe {
     background-color: transparent;
     border: 0px none transparent;
     padding: 0px;
-    overflow: hidden;
+    overflow: visible;
+    height: 720px;    
+    width: inherit;
 }

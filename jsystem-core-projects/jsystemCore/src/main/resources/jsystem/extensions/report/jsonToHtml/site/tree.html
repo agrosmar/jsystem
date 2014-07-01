@@ -18,12 +18,6 @@
         <!--<link href="css/testTree.css" rel="stylesheet">-->
         <link href="css/tree.css" rel="stylesheet">
         <link href="css/dashboard.css" rel="stylesheet">
-        <script language="javascript" type="text/javascript">
-            function resizeIframe(obj) {
-                obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
-            }
-        </script>
-
         <!-- Just for debugging purposes. Don't actually copy this line! -->
         <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
 
@@ -67,19 +61,18 @@
                     <div class="input-group" style="padding:10px">
                         <input id="tree_q" type="text" class="form-control">
                     </div>
-                    <div id="tree" style = "overflow: auto;min-height: 704px;max-height: 1056px">
+                    <div id="tree">
                     </div>
                 </div>
                 <div class= "col-md-9 hidden-sm hidden-xs panel panel-default">
                     <div class="panel-heading">Test Information</div>
-                    <div class="panel-body">    
-                        <iframe id="rightPane" class="col-md-12" style="height: 724px ; " onload="javascript:resizeIframe(this);" seamless>
-                        </iframe>
+                        <div class="panel-body">    
+                            <iframe id="rightPane" class="col-md-12"  >
+                            </iframe>
+                        </div>
                     </div>
                 </div>
-
             </div>
-        </div>
 
         <!-- Bootstrap core JavaScript
         ================================================== -->

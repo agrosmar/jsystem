@@ -235,8 +235,10 @@ function setImageElement(table,element){
     var img = $("<img>").attr("src",element.message).addClass("example-image").attr("alt",element.title);
     var a = $("<a>").attr("href",element.message).attr("data-lightbox","image-1").attr("title",element.title);
     a.append(img);
+    
     var td = $("<td>");
-    td.append(a);
+    var indentation = indentationStrByLevelDepth(element, levelInfo.levelDepth);
+    td.html(indentation).append(a);
     tr.append(td);
     $(table).append(tr);
 }

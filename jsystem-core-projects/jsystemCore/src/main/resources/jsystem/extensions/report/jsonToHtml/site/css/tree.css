@@ -19,3 +19,9 @@ and open the template in the editor.
 .jstree-node.warning , .jstree-anchor.warning{
     /* in case we want different style for warning status */
 }
+
+#tree {
+    overflow: auto;
+    min-height: 704px;
+    max-height: 1056px
+}
