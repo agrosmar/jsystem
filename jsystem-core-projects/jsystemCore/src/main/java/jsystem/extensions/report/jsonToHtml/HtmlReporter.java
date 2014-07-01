@@ -1,5 +1,16 @@
 package jsystem.extensions.report.jsonToHtml;
 
+import il.co.topq.difido.model.Enums.ElementType;
+import il.co.topq.difido.model.Enums.Status;
+import il.co.topq.difido.model.execution.Execution;
+import il.co.topq.difido.model.execution.MachineNode;
+import il.co.topq.difido.model.execution.Node;
+import il.co.topq.difido.model.execution.NodeWithChildren;
+import il.co.topq.difido.model.execution.ScenarioNode;
+import il.co.topq.difido.model.execution.TestNode;
+import il.co.topq.difido.model.test.ReportElement;
+import il.co.topq.difido.model.test.TestDetails;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,16 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jsystem.extensions.report.html.ExtendLevelTestReporter;
-import jsystem.extensions.report.jsonToHtml.model.Enums.ElementType;
-import jsystem.extensions.report.jsonToHtml.model.Enums.Status;
-import jsystem.extensions.report.jsonToHtml.model.execution.ReportedExecution;
-import jsystem.extensions.report.jsonToHtml.model.execution.ReportedMachine;
-import jsystem.extensions.report.jsonToHtml.model.execution.ReportedNode;
-import jsystem.extensions.report.jsonToHtml.model.execution.ReportedNodeWithChildren;
-import jsystem.extensions.report.jsonToHtml.model.execution.ReportedScenario;
-import jsystem.extensions.report.jsonToHtml.model.execution.ReportedTest;
-import jsystem.extensions.report.jsonToHtml.model.test.ReportElement;
-import jsystem.extensions.report.jsonToHtml.model.test.TestDetails;
 import jsystem.extensions.report.xml.XmlReporter;
 import jsystem.framework.FrameworkOptions;
 import jsystem.framework.JSystemProperties;
@@ -63,7 +64,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 
 	private static final Logger log = Logger.getLogger(XmlReporter.class.getName());
 
-	private static final String resourcesPath = "jsystem/extensions/report/jsonToHtml/site";
+	private static final String resourcesPath = "il.co.topq.difido.view/";
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
 
@@ -77,15 +78,15 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 
 	private static final String TEST_DETAILS_HTML_FILE = "test.html";
 
-	private ReportedExecution execution;
+	private Execution execution;
 
-	private ReportedNodeWithChildren currentScenario;
+	private NodeWithChildren currentScenario;
 
 	private TestDetails testDetails;
 
 	private HashMap<Integer, Integer> testCounter;
 
-	private ReportedTest currentTest;
+	private TestNode currentTest;
 
 	private int index;
 
@@ -257,7 +258,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		addMachineToExecution();
 		if (JSystemProperties.getInstance().isExecutedFromIDE()) {
 			// We are running from the IDE, so there will be no scenario
-			currentScenario = new ReportedScenario("default");
+			currentScenario = new ScenarioNode("default");
 			execution.getLastMachine().addChild(currentScenario);
 		} else {
 			currentScenario = null;
@@ -277,14 +278,14 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 	 * 
 	 */
 	private void addMachineToExecution() {
-		ReportedMachine currentMachine = new ReportedMachine(getMachineName());
+		MachineNode currentMachine = new MachineNode(getMachineName());
 		if (null == execution) {
-			execution = new ReportedExecution();
+			execution = new Execution();
 			execution.addMachine(currentMachine);
 			return;
 		}
 		// We are going to append to existing execution
-		ReportedMachine lastMachine = execution.getLastMachine();
+		MachineNode lastMachine = execution.getLastMachine();
 		if (null == lastMachine || null == lastMachine.getName()) {
 			// Something is wrong. We don't have machine in the existing
 			// execution. We need to add a new one
@@ -316,9 +317,9 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			index = 0;
 			return;
 		}
-		for (ReportedMachine machine : execution.getMachines()) {
-			for (ReportedNode child : machine.getChildren(true)) {
-				if (!(child instanceof ReportedNodeWithChildren)) {
+		for (MachineNode machine : execution.getMachines()) {
+			for (Node child : machine.getChildren(true)) {
+				if (!(child instanceof NodeWithChildren)) {
 					index++;
 				}
 			}
@@ -343,7 +344,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			final String json = FileUtils.readFileToString(executionJson);
-			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), ReportedExecution.class);
+			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), Execution.class);
 		} catch (IOException e) {
 			log.warning("Found execution json file but failed to reading it");
 		}
@@ -402,7 +403,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			}
 		}
 
-		final File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
+		final File jarFile = new File(Execution.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 		if (jarFile.isFile()) {
 			try {
 				decopmerss(jarFile.getAbsolutePath(), destination.getAbsolutePath(), resourcesPath);
@@ -412,7 +413,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			}
 
 		} else {
-			URL resourceFiles = getClass().getClassLoader().getResource(resourcesPath);
+			URL resourceFiles = Execution.class.getClassLoader().getResource(resourcesPath);
 			try {
 				File files = new File(resourceFiles.toURI());
 				FileUtils.copyDirectory(files, new File(reportDir, "current"));
@@ -474,7 +475,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.className;
 		}
-		currentTest = new ReportedTest(index++, testName);
+		currentTest = new TestNode(index++, testName);
 		testStartTime = System.currentTimeMillis();
 		currentTest.setTimestamp(TIME_FORMAT.format(new Date(testStartTime)));
 		currentScenario.addChild(currentTest);
@@ -569,7 +570,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 	}
 
 	public void startContainer(JTestContainer container) {
-		ReportedScenario scenario = new ReportedScenario(ScenarioHelpers.removeScenarioHeader(container.getName()));
+		ScenarioNode scenario = new ScenarioNode(ScenarioHelpers.removeScenarioHeader(container.getName()));
 		if (container.isRoot()) {
 			// We keep scenario history only for the root scenario;
 			int numOfAppearances = getAndUpdateTestHistory(container.getName());
