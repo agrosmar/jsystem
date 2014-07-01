@@ -254,20 +254,48 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		}
 		updateIndex();
 		copyResources();
-		if (null == execution) {
-			execution = new ReportedExecution();
-		}
-		ReportedMachine m = new ReportedMachine(getMachineName());
-		execution.addMachine(m);
+		addMachineToExecution();
 		if (JSystemProperties.getInstance().isExecutedFromIDE()) {
 			// We are running from the IDE, so there will be no scenario
 			currentScenario = new ReportedScenario("default");
-			m.addChild(currentScenario);
+			execution.getLastMachine().addChild(currentScenario);
 		} else {
 			currentScenario = null;
 		}
 		currentTest = null;
 		executionToFile();
+
+	}
+
+	/**
+	 * If no execution exists. Meaning, we are not appending to an older
+	 * execution; A new execution would be created. If the execution is new,
+	 * will add a new reported machine instance. If we are appending to an older
+	 * execution, and the machine is the same as the machine the execution were
+	 * executed on, will append the results to the last machine and will not
+	 * create a new one.
+	 * 
+	 */
+	private void addMachineToExecution() {
+		ReportedMachine currentMachine = new ReportedMachine(getMachineName());
+		if (null == execution) {
+			execution = new ReportedExecution();
+			execution.addMachine(currentMachine);
+			return;
+		}
+		// We are going to append to existing execution
+		ReportedMachine lastMachine = execution.getLastMachine();
+		if (null == lastMachine || null == lastMachine.getName()) {
+			// Something is wrong. We don't have machine in the existing
+			// execution. We need to add a new one
+			execution.addMachine(currentMachine);
+			return;
+		}
+		if (!lastMachine.getName().equals(currentMachine.getName())) {
+			// The execution happened on machine different from the current
+			// machine, so we will create a new machine
+			execution.addMachine(currentMachine);
+		}
 
 	}
 
