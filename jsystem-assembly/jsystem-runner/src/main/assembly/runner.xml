@@ -125,7 +125,7 @@
 				<include>*:xz:*</include>
 				<include>*:jackson-mapper-asl:*</include>
 				<include>*:jackson-core-asl:*</include>
-				<include>*:difido-reports:*</include>
+				<include>*:difido-reports-common:*</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>
