@@ -1,5 +1,6 @@
-package jsystem.extensions.report.jsonToHtml;
+package jsystem.extensions.report.difido;
 
+import il.co.topq.difido.PersistenceUtils;
 import il.co.topq.difido.model.Enums.ElementType;
 import il.co.topq.difido.model.Enums.Status;
 import il.co.topq.difido.model.execution.Execution;
@@ -12,26 +13,19 @@ import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jsystem.extensions.report.html.ExtendLevelTestReporter;
-import jsystem.extensions.report.xml.XmlReporter;
 import jsystem.framework.FrameworkOptions;
 import jsystem.framework.JSystemProperties;
 import jsystem.framework.common.CommonResources;
@@ -53,7 +47,6 @@ import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 import org.apache.commons.io.FileUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * 
@@ -62,25 +55,15 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener {
 
-	private static final Logger log = Logger.getLogger(XmlReporter.class.getName());
-
-	private static final String resourcesPath = "il.co.topq.difido.view/";
+	private static final Logger log = Logger.getLogger(HtmlReporter.class.getName());
 
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
 
 	private static final SimpleDateFormat TIME_AND_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd 'at' HH:mm:ss");
 
-	private static final ObjectMapper mapper = new ObjectMapper();
-
-	private static final String EXECUTION_MODEL_FILE = "execution.js";
-
-	private static final String TEST_DETAILS_MODEL_FILE = "test.js";
-
-	private static final String TEST_DETAILS_HTML_FILE = "test.html";
-
 	private Execution execution;
 
-	private NodeWithChildren currentScenario;
+	private ScenarioNode currentScenario;
 
 	private TestDetails testDetails;
 
@@ -185,7 +168,8 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			element.setType(ElementType.regular);
 		}
 		testDetails.addReportElement(element);
-		testToFile();
+		PersistenceUtils.writeTest(testDetails, new File(reportDir + File.separator + "current"), new File(
+				ListenerstManager.getInstance().getCurrentTestFolder()));
 
 	}
 
@@ -251,10 +235,10 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		if (deleteCurrent) {
 			execution = null;
 		} else {
-			updateModel();
+			execution = PersistenceUtils.readExecution(new File(reportDir + File.separator + "current"));
 		}
 		updateIndex();
-		copyResources();
+		PersistenceUtils.copyResources(new File(reportDir, "current"));
 		addMachineToExecution();
 		if (JSystemProperties.getInstance().isExecutedFromIDE()) {
 			// We are running from the IDE, so there will be no scenario
@@ -264,7 +248,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			currentScenario = null;
 		}
 		currentTest = null;
-		executionToFile();
+		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
 
 	}
 
@@ -336,21 +320,6 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		return machineName;
 	}
 
-	private void updateModel() {
-		File executionJson = new File(reportDir + File.separator + "current", EXECUTION_MODEL_FILE);
-		if (!executionJson.exists()) {
-			return;
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			final String json = FileUtils.readFileToString(executionJson);
-			execution = mapper.readValue(json.replaceFirst("var execution = ", ""), Execution.class);
-		} catch (IOException e) {
-			log.warning("Found execution json file but failed to reading it");
-		}
-
-	}
-
 	/**
 	 * Update a file which holds current test directory name
 	 * 
@@ -366,64 +335,6 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 				log.log(Level.WARNING, "Failed updating tmp properties", e);
 			}
 		}
-	}
-
-	private static void decopmerss(String zipFile, String outputFolder, String filter) throws Exception {
-		try (JarFile jar = new JarFile(zipFile)) {
-			Enumeration<JarEntry> e = jar.entries();
-			while (e.hasMoreElements()) {
-				java.util.jar.JarEntry file = (JarEntry) e.nextElement();
-				if (!file.getName().startsWith(filter)) {
-					continue;
-				}
-				java.io.File f = new java.io.File(outputFolder + java.io.File.separator
-						+ file.getName().replaceFirst(filter, ""));
-				if (file.isDirectory()) {
-					f.mkdirs();
-					continue;
-				}
-				try (InputStream is = jar.getInputStream(file); FileOutputStream fos = new java.io.FileOutputStream(f)) {
-					while (is.available() > 0) {
-						fos.write(is.read());
-					}
-
-				}
-			}
-
-		}
-
-	}
-
-	private void copyResources() {
-		File destination = new File(reportDir, "current");
-		if (!destination.exists()) {
-			if (!destination.mkdir()) {
-				log.warning("Failed to create log folder " + destination.getAbsolutePath());
-				return;
-			}
-		}
-
-		final File jarFile = new File(Execution.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		if (jarFile.isFile()) {
-			try {
-				decopmerss(jarFile.getAbsolutePath(), destination.getAbsolutePath(), resourcesPath);
-			} catch (Exception e) {
-				log.warning("Failed to copy HTML resources");
-				return;
-			}
-
-		} else {
-			URL resourceFiles = Execution.class.getClassLoader().getResource(resourcesPath);
-			try {
-				File files = new File(resourceFiles.toURI());
-				FileUtils.copyDirectory(files, new File(reportDir, "current"));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		}
-
 	}
 
 	protected void updateLogDir() {
@@ -445,7 +356,8 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 
 	public void endTest(Test arg0) {
 		currentTest.setDuration(System.currentTimeMillis() - testStartTime);
-		testToFile();
+		PersistenceUtils.writeTest(testDetails, new File(reportDir + File.separator + "current"), new File(
+				ListenerstManager.getInstance().getCurrentTestFolder()));
 	}
 
 	public void startTest(Test arg0) {
@@ -503,7 +415,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		if (numOfAppearances > 0) {
 			currentTest.setName(currentTest.getName() + " (" + ++numOfAppearances + ")");
 		}
-		executionToFile();
+		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
 	}
 
 	private int getAndUpdateTestHistory(final Object bb) {
@@ -519,48 +431,9 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		return testCounter.get(key);
 	}
 
-	private void executionToFile() {
-		try {
-			File executionModelFile = new File(reportDir + File.separator + "current", EXECUTION_MODEL_FILE);
-			if (executionModelFile.exists()) {
-				File executionModelFileBackup = new File(reportDir + File.separator + "current", EXECUTION_MODEL_FILE
-						+ ".backup");
-				if (executionModelFileBackup.exists()) {
-					executionModelFileBackup.delete();
-				}
-				executionModelFile.renameTo(executionModelFileBackup);
-			}
-			String json = mapper.writeValueAsString(execution);
-			json = "var execution = " + json + ";";
-			FileUtils.write(executionModelFile, json);
-		} catch (Exception e) {
-			log.warning("Failed to write html report due to " + e.getMessage());
-		}
-
-	}
-
-	private void testToFile() {
-		final File testFolder = new File(ListenerstManager.getInstance().getCurrentTestFolder());
-		final File testHtml = new File(testFolder, TEST_DETAILS_HTML_FILE);
-		if (!testHtml.exists()) {
-			try {
-				FileUtils.copyFile(new File(reportDir + File.separator + "current", TEST_DETAILS_HTML_FILE), testHtml);
-			} catch (IOException e) {
-				log.warning("Failed to create HTML test details file due to " + e.getMessage());
-			}
-		}
-		try {
-			String json = mapper.writeValueAsString(testDetails);
-			json = "var test = " + json + ";";
-			FileUtils.write(new File(testFolder, TEST_DETAILS_MODEL_FILE), json);
-		} catch (Exception e) {
-			log.warning("Failed to write test details due to " + e.getMessage());
-		}
-
-	}
 
 	public void endRun() {
-		executionToFile();
+		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
 	}
 
 	public void startLoop(AntForLoop loop, int count) {
@@ -587,12 +460,15 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			currentScenario.addChild(scenario);
 		}
 		currentScenario = scenario;
-		executionToFile();
+		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
 
 	}
 
 	public void endContainer(JTestContainer container) {
-		currentScenario = currentScenario.getParent();
+		if (currentScenario.getParent() instanceof ScenarioNode) {
+			currentScenario = (ScenarioNode) currentScenario.getParent();
+
+		}
 
 	}
 
