@@ -126,6 +126,11 @@
 				<include>*:jackson-mapper-asl:*</include>
 				<include>*:jackson-core-asl:*</include>
 				<include>*:difido-reports-common:*</include>
+				<!-- 
+				<include>*:difido-reports-client:*</include>
+				<include>*:jersey-client:*</include>
+				<include>*:jersey-media-json-jackson:*</include>
+				 -->
 			</includes>
 		</dependencySet>
 		<dependencySet>
