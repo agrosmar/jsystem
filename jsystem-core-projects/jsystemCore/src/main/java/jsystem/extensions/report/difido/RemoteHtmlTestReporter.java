@@ -105,11 +105,6 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 		if (!enabled) {
 			return;
 		}
-		if (null == specialReportsElementsHandler) {
-			// This never suppose to happen, since it was initialized in the
-			// start test event.
-			specialReportsElementsHandler = new SpecialReportElementsHandler(currentTestDetails);
-		}
 		if (!specialReportsElementsHandler.isValidAndHandleSpecial(title)) {
 			return;
 		}
@@ -280,10 +275,16 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 		if (!enabled) {
 			return;
 		}
-
 		currentTest.setDuration(System.currentTimeMillis() - testStartTime);
-		client.updateTest(executionId, machineId, scenarioIdsBuffer.peek(), testId, currentTest);
-		client.endTest(executionId, machineId, scenarioIdsBuffer.peek(), testId);
+		try {
+			// We need to update the test details again since the special report
+			// element handler may added additional properties.
+			client.updateTestDetails(executionId, machineId, scenarioIdsBuffer.peek(), testId, currentTestDetails);
+			client.updateTest(executionId, machineId, scenarioIdsBuffer.peek(), testId, currentTest);
+			client.endTest(executionId, machineId, scenarioIdsBuffer.peek(), testId);
+		} catch (Exception e) {
+			log.warning("Failed updating end of test due to " + e.getMessage());
+		}
 	}
 
 	@Override
