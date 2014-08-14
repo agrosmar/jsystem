@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -48,7 +49,7 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 	private static final String BASE_URI_TEMPLATE = "http://%s:%d/api/";
 
 	private DifidoClient client;
-	private HashMap<Integer, Integer> testCounter;
+	private Map<Integer, Integer> testCounter;
 	private Queue<Integer> scenarioIdsBuffer;
 
 	private SpecialReportElementsHandler specialReportsElementsHandler;
@@ -159,6 +160,10 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 		} else {
 			element.setType(ElementType.regular);
 		}
+		addReportElement(element);
+	}
+
+	private void addReportElement(ReportElement element) {
 		try {
 			client.addReportElement(executionId, machineId, scenarioIdsBuffer.peek(), testId, element);
 			updateTestStatusIfChanged(element.getStatus());
@@ -316,6 +321,10 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.className;
 		}
+		int numOfAppearances = getAndUpdateTestHistory(testName);
+		if (numOfAppearances > 0) {
+			testName += " (" + ++numOfAppearances + ")";
+		}
 		try {
 			testId = client.addTest(executionId, machineId, scenarioIdsBuffer.peek(), new TestNode(testName));
 			currentTest = client.getTest(executionId, machineId, scenarioIdsBuffer.peek(), testId);
@@ -346,10 +355,7 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 
 			}
 		}
-		int numOfAppearances = getAndUpdateTestHistory(currentTestDetails);
-		if (numOfAppearances > 0) {
-			currentTest.setName(currentTest.getName() + " (" + ++numOfAppearances + ")");
-		}
+
 		try {
 			client.updateTest(executionId, machineId, scenarioIdsBuffer.peek(), testId, currentTest);
 			client.addTestDetails(executionId, machineId, scenarioIdsBuffer.peek(), testId, currentTestDetails);
@@ -400,7 +406,7 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 		if (!enabled) {
 			return;
 		}
-		final String scenarioName = ScenarioHelpers.removeScenarioHeader(container.getName());
+		String scenarioName = ScenarioHelpers.removeScenarioHeader(container.getName());
 		int scenarioId = -1;
 		if (container.isRoot()) {
 			try {
@@ -410,6 +416,12 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 					executionId = client.addExecution();
 				}
 				machineId = client.addMachine(executionId, new MachineNode(getMachineName()));
+				// If the scenario appeared more then once we want to append the
+				// number of appearences to the scnenario name
+				int numOfAppearances = getAndUpdateTestHistory(container.getName());
+				if (numOfAppearances > 0) {
+					scenarioName = (scenarioName + " (" + ++numOfAppearances + ")");
+				}
 				scenarioId = client.addRootScenario(executionId, machineId, new ScenarioNode(scenarioName));
 				enabled = true;
 			} catch (Throwable t) {
@@ -437,19 +449,26 @@ public class RemoteHtmlTestReporter implements ExtendLevelTestReporter, ExtendTe
 
 	@Override
 	public void startLevel(String level, EnumReportLevel place) throws IOException {
-		// TODO Auto-generated method stub
+		ReportElement element = new ReportElement();
+		element.setTime(TIME_FORMAT.format(new Date()));
+		element.setTitle(level);
+		element.setType(ElementType.startLevel);
+		addReportElement(element);
 
 	}
 
 	@Override
 	public void startLevel(String levelName, int place) throws IOException {
-		// TODO Auto-generated method stub
+		startLevel(levelName, null);
 
 	}
 
 	@Override
 	public void stopLevel() {
-		// TODO Auto-generated method stub
+		ReportElement element = new ReportElement();
+		element.setTime(TIME_FORMAT.format(new Date()));
+		element.setType(ElementType.stopLevel);
+		addReportElement(element);
 
 	}
 
