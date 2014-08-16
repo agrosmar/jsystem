@@ -437,9 +437,15 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 	}
 
 	public void startLoop(AntForLoop loop, int count) {
+		ScenarioNode scenario = new ScenarioNode(loop.getTestName(count));
+		currentScenario.addChild(scenario);
+		currentScenario = scenario;
+		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
+
 	}
 
 	public void endLoop(AntForLoop loop, int count) {
+		currentScenario = (ScenarioNode) currentScenario.getParent();
 	}
 
 	public void startContainer(JTestContainer container) {
