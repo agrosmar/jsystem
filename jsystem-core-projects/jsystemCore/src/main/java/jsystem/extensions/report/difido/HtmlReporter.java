@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -88,6 +89,8 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 	private File logOld;
 
 	private boolean deleteCurrent = true;
+
+	private String executionUid;
 
 	public void initReporterManager() throws IOException {
 		BrowserLauncher.openURL(getIndexFile().getAbsolutePath());
@@ -238,6 +241,7 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			execution = PersistenceUtils.readExecution(new File(reportDir + File.separator + "current"));
 		}
 		updateIndex();
+		generateUid();
 		PersistenceUtils.copyResources(new File(reportDir, "current"));
 		addMachineToExecution();
 		if (JSystemProperties.getInstance().isExecutedFromIDE()) {
@@ -250,6 +254,10 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		currentTest = null;
 		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
 
+	}
+
+	private void generateUid() {
+		executionUid = String.valueOf(new Random().nextInt(1000)) + String.valueOf(System.currentTimeMillis() / 1000);
 	}
 
 	/**
@@ -376,7 +384,6 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 
 	public void startTest(TestInfo testInfo) {
 		specialReportsElementsHandler = new SpecialReportElementsHandler();
-		updateTestDirectoryFile("tests" + File.separator + "test_" + index);
 		String testName = testInfo.meaningfulName;
 		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.methodName;
@@ -388,6 +395,8 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			testName = testInfo.className;
 		}
 		currentTest = new TestNode(index++, testName);
+		currentTest.setUid(executionUid + "-" + index);
+		updateTestDirectoryFile("tests" + File.separator + "test_" + currentTest.getUid());
 		testStartTime = System.currentTimeMillis();
 		currentTest.setTimestamp(TIME_FORMAT.format(new Date(testStartTime)));
 		currentScenario.addChild(currentTest);
@@ -430,7 +439,6 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 		}
 		return testCounter.get(key);
 	}
-
 
 	public void endRun() {
 		PersistenceUtils.writeExecution(execution, new File(reportDir + File.separator + "current"));
@@ -811,5 +819,14 @@ public class HtmlReporter implements ExtendLevelTestReporter, ExtendTestListener
 			}
 		}
 
+	}
+
+	public static void main(String[] args) {
+		for (int i = 0; i < 10; i++) {
+			String rand = String.valueOf(new Random().nextInt(1000))
+					+ String.valueOf(System.currentTimeMillis() / 1000);
+			System.out.println(rand);
+
+		}
 	}
 }
