@@ -19,7 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -280,13 +279,12 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.className;
 		}
-		currentTest = new TestNode(index++, testName);
-		currentTest.setUid(executionUid + "-" + index);
+		currentTest = new TestNode(index++, testName,executionUid + "-" + index);
 		testStartTime = System.currentTimeMillis();
 		currentTest.setTimestamp(TIME_FORMAT.format(new Date(testStartTime)));
 		currentScenario.addChild(currentTest);
-		testDetails = new TestDetails(testName);
-		testDetails.setTimestamp(TIME_AND_DATE_FORMAT.format(new Date(testStartTime)));
+		testDetails = new TestDetails(testName,currentTest.getUid());
+		testDetails.setTimeStamp(TIME_AND_DATE_FORMAT.format(new Date(testStartTime)));
 		if (!StringUtils.isEmpty(testInfo.comment)) {
 			testDetails.setDescription(testInfo.comment);
 		}

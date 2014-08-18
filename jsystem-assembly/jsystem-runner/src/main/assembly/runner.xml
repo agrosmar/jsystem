@@ -123,14 +123,10 @@
 				<include>*:commons-modeler:*</include>
 				<include>*:filters:*</include>
 				<include>*:xz:*</include>
-				<include>*:jackson-mapper-asl:*</include>
-				<include>*:jackson-core-asl:*</include>
+				<include>*:jackson-databind:*</include>
+				<include>*:jackson-annotations:*</include>
+				<include>*:jackson-core:*</include>
 				<include>*:difido-reports-common:*</include>
-				<!-- 
-				<include>*:difido-reports-client:*</include>
-				<include>*:jersey-client:*</include>
-				<include>*:jersey-media-json-jackson:*</include>
-				 -->
 			</includes>
 		</dependencySet>
 		<dependencySet>
