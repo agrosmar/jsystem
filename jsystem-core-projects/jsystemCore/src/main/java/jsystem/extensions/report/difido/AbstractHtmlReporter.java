@@ -11,6 +11,8 @@ import il.co.topq.difido.model.execution.TestNode;
 import il.co.topq.difido.model.test.ReportElement;
 import il.co.topq.difido.model.test.TestDetails;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,6 +27,7 @@ import java.util.regex.Pattern;
 import jsystem.extensions.report.html.ExtendLevelTestReporter;
 import jsystem.framework.JSystemProperties;
 import jsystem.framework.report.ExtendTestListener;
+import jsystem.framework.report.ListenerstManager;
 import jsystem.framework.report.Reporter.EnumReportLevel;
 import jsystem.framework.report.TestInfo;
 import jsystem.framework.scenario.JTestContainer;
@@ -104,7 +107,7 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 
 	}
 
-	public void report(String title, String message, int status, boolean bold, boolean html, boolean link) {
+	public void report(String title, final String message, int status, boolean bold, boolean html, boolean link) {
 		if (null == specialReportsElementsHandler) {
 			// This never suppose to happen, since it was initialized in the
 			// start test event.
@@ -141,6 +144,11 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 			} else {
 				element.setType(ElementType.lnk);
 			}
+			final File[] filesToUpload = getAddedFiles(message);
+			if (filesToUpload != null && filesToUpload.length > 0) {
+				filesWereAddedToReport(filesToUpload);
+			}
+
 		} else {
 			element.setType(ElementType.regular);
 		}
@@ -148,6 +156,24 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		writeTestDetails(testDetails);
 
 	}
+
+	private File[] getAddedFiles(final String message) {
+		// Getting the current test folder
+		final File currentTestFolder = new File(ListenerstManager.getInstance().getCurrentTestFolder());
+		final File[] filesToUpload = currentTestFolder.listFiles(new FilenameFilter() {
+
+			@Override
+			public boolean accept(File dir, String name) {
+				if (name.equals(message)) {
+					return true;
+				}
+				return false;
+			}
+		});
+		return filesToUpload;
+	}
+
+	protected abstract void filesWereAddedToReport(File[] files);
 
 	public AbstractHtmlReporter() {
 		init();
@@ -279,11 +305,11 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		if (null == testName || "null".equals(testName)) {
 			testName = testInfo.className;
 		}
-		currentTest = new TestNode(index++, testName,executionUid + "-" + index);
+		currentTest = new TestNode(index++, testName, executionUid + "-" + index);
 		testStartTime = System.currentTimeMillis();
 		currentTest.setTimestamp(TIME_FORMAT.format(new Date(testStartTime)));
 		currentScenario.addChild(currentTest);
-		testDetails = new TestDetails(testName,currentTest.getUid());
+		testDetails = new TestDetails(testName, currentTest.getUid());
 		testDetails.setTimeStamp(TIME_AND_DATE_FORMAT.format(new Date(testStartTime)));
 		if (!StringUtils.isEmpty(testInfo.comment)) {
 			testDetails.setDescription(testInfo.comment);
@@ -309,6 +335,7 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		}
 		updateTestDirectory();
 		writeExecution(execution);
+		writeTestDetails(testDetails);
 	}
 
 	private int getAndUpdateTestHistory(final Object bb) {
@@ -548,14 +575,16 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		}
 	}
 
-	public TestNode getCurrentTest() {
+	protected TestNode getCurrentTest() {
 		return currentTest;
 	}
 
-	public Execution getExecution() {
+	protected Execution getExecution() {
 		return execution;
 	}
-	
-	
+
+	protected TestDetails getTestDetails() {
+		return testDetails;
+	}
 
 }

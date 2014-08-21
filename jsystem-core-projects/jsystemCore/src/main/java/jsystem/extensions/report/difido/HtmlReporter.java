@@ -63,8 +63,6 @@ public class HtmlReporter extends AbstractHtmlReporter {
 
 	}
 
-
-
 	@Override
 	protected void updateTestDirectory() {
 		final String folder = "tests" + File.separator + "test_" + getCurrentTest().getUid();
@@ -75,7 +73,6 @@ public class HtmlReporter extends AbstractHtmlReporter {
 			log.log(Level.WARNING, "Failed updating tmp properties", e);
 		}
 	}
-
 
 	protected void updateLogDir() {
 		reportDir = JSystemProperties.getInstance().getPreference(FrameworkOptions.LOG_FOLDER);
@@ -314,6 +311,11 @@ public class HtmlReporter extends AbstractHtmlReporter {
 			}
 		}
 
+	}
+
+	@Override
+	protected void filesWereAddedToReport(File[] files) {
+		// Unused
 	}
 
 }

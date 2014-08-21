@@ -3,6 +3,7 @@ package jsystem.extensions.report.difido;
 import il.co.topq.difido.model.execution.Execution;
 import il.co.topq.difido.model.test.TestDetails;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -91,6 +92,8 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 	private void checkIfNeedsToDisable() {
 		numOfFailures++;
 		if (numOfFailures > MAX_NUM_OF_ALLOWED_FAILURES) {
+			log.warning("Communication to server has failed more then " + MAX_NUM_OF_ALLOWED_FAILURES
+					+ ". Disabling report reporter");
 			enabled = false;
 		}
 	}
@@ -102,6 +105,24 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 
 	@Override
 	protected void updateTestDirectory() {
+	}
+
+	@Override
+	protected void filesWereAddedToReport(File[] files) {
+		if (!enabled) {
+			return;
+		}
+		if (files == null || files.length == 0) {
+			return;
+		}
+		for (File file : files) {
+			try {
+				client.addFile(executionId, getTestDetails().getUid(), file);
+			} catch (Exception e) {
+				log.warning("Failed uploading file " + file.getName() + " to remote server due to " + e.getMessage());
+			}
+		}
+
 	}
 
 }

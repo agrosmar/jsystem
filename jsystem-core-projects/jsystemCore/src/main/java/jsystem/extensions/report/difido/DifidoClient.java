@@ -5,7 +5,6 @@ import il.co.topq.difido.model.test.TestDetails;
 
 import java.io.File;
 
-
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
@@ -82,7 +81,7 @@ public class DifidoClient {
 		handleResponseCode(method, responseCode);
 	}
 
-	public void addFile(int executionId, String uid, File file) throws Exception {
+	public void addFile(final int executionId, final String uid, final File file) throws Exception {
 		PostMethod method = new PostMethod(baseUri + "executions/" + executionId + "/details/" + uid + "/file/");
 		Part[] parts = new Part[] { new FilePart(file.getName(), file) };
 		method.setRequestEntity(new MultipartRequestEntity(parts, method.getParams()));
