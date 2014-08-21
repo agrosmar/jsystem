@@ -28,6 +28,10 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 
 	private int numOfFailures;
 
+	public RemoteHtmlReporter(){
+		super();
+	}
+	
 	@Override
 	public void initReporterManager() throws IOException {
 	}
@@ -46,7 +50,7 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 			final int port = Integer.parseInt(JSystemProperties.getInstance().getPreferenceOrDefault(
 					FrameworkOptions.REPORTS_PUBLISHER_PORT));
 			client = new DifidoClient(host, port);
-			if (appendToExistingExecution) {
+			if (true) {
 				executionId = client.getLastExecutionId();
 			} else {
 				executionId = client.addExecution();
@@ -56,7 +60,7 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 			log.fine(RemoteHtmlReporter.class.getName() + " was initilized successfully");
 		} catch (Throwable t) {
 			enabled = false;
-			log.fine("Failed to init " + RemoteHtmlReporter.class.getName() + " due to " + t.getMessage());
+			log.warning("Failed to init " + RemoteHtmlReporter.class.getName() + " due to " + t.getMessage());
 		}
 
 	}
