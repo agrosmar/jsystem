@@ -20,7 +20,7 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 
 	private DifidoClient client;
 
-	private boolean appendToExistingExecution;
+	private boolean appendToExistingExecution = true;
 
 	private int executionId;
 
@@ -101,10 +101,6 @@ public class RemoteHtmlReporter extends AbstractHtmlReporter {
 	@Override
 	protected Execution readExecution() {
 		return null;
-	}
-
-	@Override
-	protected void updateTestDirectory() {
 	}
 
 	@Override

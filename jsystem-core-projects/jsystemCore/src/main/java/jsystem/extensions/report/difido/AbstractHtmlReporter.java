@@ -21,11 +21,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import jsystem.extensions.report.html.ExtendLevelTestReporter;
 import jsystem.framework.JSystemProperties;
+import jsystem.framework.common.CommonResources;
 import jsystem.framework.report.ExtendTestListener;
 import jsystem.framework.report.ListenerstManager;
 import jsystem.framework.report.Reporter.EnumReportLevel;
@@ -45,6 +48,8 @@ import junit.framework.Test;
  */
 public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, ExtendTestListener {
 
+	private static final Logger log = Logger.getLogger(AbstractHtmlReporter.class.getName());
+	
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss:");
 
 	private static final SimpleDateFormat TIME_AND_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd 'at' HH:mm:ss");
@@ -75,16 +80,17 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 
 	protected abstract Execution readExecution();
 
-	protected abstract void updateTestDirectory();
-
+	@Override
 	public boolean asUI() {
 		return true;
 	}
 
+	@Override
 	public void report(String title, String message, boolean isPass, boolean bold) {
 		report(title, message, isPass ? 0 : 1, bold, false, false);
 	}
 
+	@Override
 	public void report(String title, String message, int status, boolean bold) {
 		report(title, message, status, bold, false, false);
 	}
@@ -107,6 +113,7 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 
 	}
 
+	@Override
 	public void report(String title, final String message, int status, boolean bold, boolean html, boolean link) {
 		if (null == specialReportsElementsHandler) {
 			// This never suppose to happen, since it was initialized in the
@@ -265,24 +272,29 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		return machineName;
 	}
 
+	@Override
 	public void addError(Test arg0, Throwable arg1) {
 		currentTest.setStatus(Status.error);
 	}
 
+	@Override
 	public void addFailure(Test arg0, AssertionFailedError arg1) {
 		currentTest.setStatus(Status.failure);
 
 	}
 
+	@Override
 	public void endTest(Test arg0) {
 		currentTest.setDuration(System.currentTimeMillis() - testStartTime);
 		writeTestDetails(testDetails);
 	}
 
+	@Override
 	public void startTest(Test arg0) {
 		// Not used
 	}
 
+	@Override
 	public void addWarning(Test test) {
 		currentTest.setStatus(Status.warning);
 	}
@@ -293,6 +305,7 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		}
 	}
 
+	@Override
 	public void startTest(TestInfo testInfo) {
 		specialReportsElementsHandler = new SpecialReportElementsHandler();
 		String testName = testInfo.meaningfulName;
@@ -337,6 +350,16 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		writeExecution(execution);
 		writeTestDetails(testDetails);
 	}
+	
+	protected void updateTestDirectory() {
+		final String folder = "tests" + File.separator + "test_" + getCurrentTest().getUid();
+		try {
+			jsystem.utils.FileUtils.addPropertyToFile(CommonResources.TEST_INNER_TEMP_FILENAME,
+					CommonResources.TEST_DIR_KEY, folder);
+		} catch (Exception e) {
+			log.log(Level.WARNING, "Failed updating tmp properties", e);
+		}
+	}
 
 	private int getAndUpdateTestHistory(final Object bb) {
 		if (testCounter == null) {
@@ -351,10 +374,12 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 		return testCounter.get(key);
 	}
 
+	@Override
 	public void endRun() {
 		writeExecution(execution);
 	}
 
+	@Override
 	public void startLoop(AntForLoop loop, int count) {
 		ScenarioNode scenario = new ScenarioNode(loop.getTestName(count));
 		currentScenario.addChild(scenario);
@@ -363,10 +388,12 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 
 	}
 
+	@Override
 	public void endLoop(AntForLoop loop, int count) {
 		currentScenario = (ScenarioNode) currentScenario.getParent();
 	}
 
+	@Override
 	public void startContainer(JTestContainer container) {
 		ScenarioNode scenario = new ScenarioNode(ScenarioHelpers.removeScenarioHeader(container.getName()));
 		if (container.isRoot()) {
@@ -389,6 +416,7 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 
 	}
 
+	@Override
 	public void endContainer(JTestContainer container) {
 		if (currentScenario.getParent() instanceof ScenarioNode) {
 			currentScenario = (ScenarioNode) currentScenario.getParent();
@@ -397,26 +425,33 @@ public abstract class AbstractHtmlReporter implements ExtendLevelTestReporter, E
 
 	}
 
+	@Override
 	public void saveFile(String fileName, byte[] content) {
 
 	}
 
+	@Override
 	public void startSection() {
 	}
 
+	@Override
 	public void endSection() {
 	}
 
+	@Override
 	public void setData(String data) {
 	}
 
+	@Override
 	public void addProperty(String key, String value) {
 		testDetails.addProperty(key, value);
 	}
 
+	@Override
 	public void setContainerProperties(int ancestorLevel, String key, String value) {
 	}
 
+	@Override
 	public void flush() throws Exception {
 	}
 
