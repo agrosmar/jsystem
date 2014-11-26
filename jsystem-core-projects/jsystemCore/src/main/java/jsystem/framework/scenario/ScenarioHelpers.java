@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -21,9 +22,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.xml.parsers.DocumentBuilder;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import jsystem.framework.FrameworkOptions;
 import jsystem.framework.JSystemProperties;
 import jsystem.framework.RunProperties;
@@ -590,6 +594,7 @@ public class ScenarioHelpers {
 			throws Exception {
 		if (!onlyCache) {
 			removeRunningPropsWithDefaultValues(p);
+			p = removeDeletedProps(p, scenarioName);
 			String classFileName = ScenarioHelpers
 					.getScenarioPropertiesFile(scenarioName);
 			String srcFileName = ScenarioHelpers
@@ -650,6 +655,45 @@ public class ScenarioHelpers {
 		}
 	}
 
+	public static Properties removeDeletedProps(Properties properties, String scenarioName) throws Exception {
+		String lastTestFullUuid = "";
+		Enumeration<Object> e1 = properties.keys();
+		while (e1.hasMoreElements()) {
+			final Object key1 = e1.nextElement();
+			if (properties.get(key1) == null) {
+				continue;
+			}
+			String testFullUuid = key1.toString().substring(0, key1.toString().indexOf("."));
+			if (!testFullUuid.equals(lastTestFullUuid)) {
+				lastTestFullUuid = testFullUuid;
+				JTest test = ScenarioHelpers.getTestById(ScenariosManager.getInstance().getCurrentScenario(), testFullUuid);
+				if (test instanceof RunnerTest) {
+					Properties testProps = ScenarioHelpers.getTestPropertiesFromScenarioProps(scenarioName, testFullUuid);
+					Parameter[] testParams = ((RunnerTest) test).getParameters();
+					List<String> testParamsNames = new ArrayList<>();
+					for (int i = 0; i < testParams.length; i++) {
+						testParamsNames.add(testParams[i].getName());
+					}
+					Enumeration<Object> e2 = testProps.keys();	
+					while (e2.hasMoreElements()) {
+						final Object key2 = e2.nextElement();
+						if (testProps.get(key2) == null ) {
+							continue;
+						}
+						String testParamName = key2.toString();
+						if (testParamName.startsWith("jsystem.")) {
+							continue;
+						}
+						if (!testParamsNames.contains(testParamName)) {
+							properties.remove(testFullUuid + "." + testParamName);
+						}
+					}
+				}
+			}
+		}
+		return properties;
+	}
+	
 	public static void deleteScenario(Scenario scenario) {
 		if (scenario == null) {
 			return;
