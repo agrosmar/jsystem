@@ -36,6 +36,7 @@ import jsystem.framework.report.ListenerstManager;
 import jsystem.framework.scenario.flow_control.AntFlowControl;
 import jsystem.framework.scenario.flow_control.AntForLoop;
 import jsystem.utils.FileUtils;
+import jsystem.utils.SortedProperties;
 import jsystem.utils.StringUtils;
 import jsystem.utils.XmlUtils;
 import junit.framework.Test;
@@ -580,6 +581,7 @@ public class ScenarioHelpers {
 		saveScenarioPropertiesToSrcAndClass(p, scenarioName, onlyCache);
 	}
 
+	public static int counter = 0;
 	/**
 	 * save the given properties to the given scenario file (both source and
 	 * class files)
@@ -594,7 +596,6 @@ public class ScenarioHelpers {
 			throws Exception {
 		if (!onlyCache) {
 			removeRunningPropsWithDefaultValues(p);
-			p = removeDeletedProps(p, scenarioName);
 			String classFileName = ScenarioHelpers
 					.getScenarioPropertiesFile(scenarioName);
 			String srcFileName = ScenarioHelpers
@@ -655,12 +656,15 @@ public class ScenarioHelpers {
 		}
 	}
 
-	public static Properties removeDeletedProps(Properties properties, String scenarioName) throws Exception {
+	public static Properties removeDeletedScenarioProperties(Properties properties, String scenarioName) throws Exception {
+		long startTime = System.currentTimeMillis();
 		String lastTestFullUuid = "";
-		Enumeration<Object> e1 = properties.keys();
+		Properties sortedProperties = new SortedProperties();
+		sortedProperties.putAll(properties);
+		Enumeration<Object> e1 = sortedProperties.keys();
 		while (e1.hasMoreElements()) {
 			final Object key1 = e1.nextElement();
-			if (properties.get(key1) == null) {
+			if (sortedProperties.get(key1) == null) {
 				continue;
 			}
 			String testFullUuid = key1.toString().substring(0, key1.toString().indexOf("."));
@@ -685,13 +689,16 @@ public class ScenarioHelpers {
 							continue;
 						}
 						if (!testParamsNames.contains(testParamName)) {
-							properties.remove(testFullUuid + "." + testParamName);
+							sortedProperties.remove(testFullUuid + "." + testParamName);
 						}
 					}
 				}
 			}
 		}
-		return properties;
+		long endTime = System.currentTimeMillis();
+		double diff = endTime-startTime;
+		log.info("Removing deleted properties took " + (double)diff/1000 + " seconds.");
+		return sortedProperties;
 	}
 	
 	public static void deleteScenario(Scenario scenario) {
