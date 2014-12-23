@@ -439,9 +439,13 @@ public class SystemManagerImpl implements SystemObjectManager, TestListener {
 		ArrayList<SystemObjectCloseThread>threads = new ArrayList<SystemObjectCloseThread>();
 		synchronized (this) {
 			for(SystemObject so: sos){
-				SystemObjectCloseThread thread = new SystemObjectCloseThread(so);
-				threads.add(thread);
-				thread.start();
+				try {
+					SystemObjectCloseThread thread = new SystemObjectCloseThread(so);
+					threads.add(thread);
+					thread.start();
+				} catch (Exception e) {
+					log.log(Level.WARNING, e.getMessage());
+				}				
 			}
 		}
 		
