@@ -437,11 +437,14 @@ public class SystemManagerImpl implements SystemObjectManager, TestListener {
 		}
 		
 		ArrayList<SystemObjectCloseThread>threads = new ArrayList<SystemObjectCloseThread>();
-		for(SystemObject so: sos){
-			SystemObjectCloseThread thread = new SystemObjectCloseThread(so);
-			threads.add(thread);
-			thread.start();
+		synchronized (this) {
+			for(SystemObject so: sos){
+				SystemObjectCloseThread thread = new SystemObjectCloseThread(so);
+				threads.add(thread);
+				thread.start();
+			}
 		}
+		
 		if (exitTimeout == 0) { // not waiting
 			return;
 		}
