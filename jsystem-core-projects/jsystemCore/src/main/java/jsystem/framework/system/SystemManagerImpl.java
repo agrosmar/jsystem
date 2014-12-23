@@ -61,7 +61,7 @@ public class SystemManagerImpl implements SystemObjectManager, TestListener {
     	 resetSeystemObjectsMap();
         ListenerstManager.getInstance().addListener(this);
     }
-    public static SystemManagerImpl getInstance(){
+    public static synchronized SystemManagerImpl getInstance(){
         if (manager == null){
 		if (JSystemProperties.getInstance().isReporterVm() && JSystemProperties.getInstance().isJsystemRunner()) {
         		return null;
