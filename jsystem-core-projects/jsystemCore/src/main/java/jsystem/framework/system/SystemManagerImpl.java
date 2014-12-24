@@ -436,24 +436,31 @@ public class SystemManagerImpl implements SystemObjectManager, TestListener {
 			return;
 		}
 		
-		ArrayList<SystemObjectCloseThread>threads = new ArrayList<SystemObjectCloseThread>();
+		for(SystemObject so : sos) {
+			if (so != null) {
+				try {
+					so.close();
+				} catch (Exception e) {
+					log.log(Level.SEVERE, e.getMessage());
+				}
+			}
+		}
+		
+		/*ArrayList<SystemObjectCloseThread>threads = new ArrayList<SystemObjectCloseThread>();
 		synchronized (this) {
 			for(SystemObject so: sos){
-				try {
-					SystemObjectCloseThread thread = new SystemObjectCloseThread(so);
-					threads.add(thread);
-					thread.start();
-				} catch (Exception e) {
-					log.log(Level.WARNING, e.getMessage());
-				}				
+				SystemObjectCloseThread thread = new SystemObjectCloseThread(so);
+				threads.add(thread);
+				thread.start();				
 			}
 		}
 		
 		if (exitTimeout == 0) { // not waiting
 			return;
-		}
+		}*/
+		
 		// Wait for all system objects to close at least exitTimeout milliseconds
-		while (System.currentTimeMillis() - System.currentTimeMillis() < exitTimeout){
+		/*while (System.currentTimeMillis() - System.currentTimeMillis() < exitTimeout){
 			if (threads.size() == 0) {
 				break;
 			}
@@ -469,7 +476,7 @@ public class SystemManagerImpl implements SystemObjectManager, TestListener {
 					i--;
 				}
 			}
-		}
+		}*/
 	}
 
 	public void removeSystemObject(SystemObject o) {
